@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Users</title>
+    <link rel="stylesheet" href="../Styles/Users.css" />
+</head>
+<body>
+    <div class="users-shell">
+        <aside class="users-sidebar">
+            <div class="brand">
+                <h2>SuperAdmin</h2>
+                <span>Treasury</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Users.html" class="active">Users</a>
+                <a href="Update.html">Update</a>
+                <a href="Settings.html">Settings</a>
+            </nav>
+        </aside>
+
+        <main class="users-main">
+            <header class="users-header">
+                <div>
+                    <h1>User Management</h1>
+                    <p>Manage admin and super admin accounts.</p>
+                </div>
+                <button class="add-user-btn" type="button" onclick="openAddModal()">+ Add User</button>
+            </header>
+
+            <section class="users-card">
+                <div class="table-top">
+                    <div class="table-top-left">
+                        <span id="user-count" class="user-count">Loading…</span>
+                        <div class="role-filters">
+                            <button class="role-filter-btn active" onclick="setRoleFilter(this, '')">All</button>
+                            <button class="role-filter-btn" onclick="setRoleFilter(this, 'admin')">Admin</button>
+                        </div>
+                    </div>
+                    <input type="search" id="search-input" placeholder="Search by name or username…" oninput="applySearch()" />
+                </div>
+
+                <div id="table-area">
+                    <p class="placeholder-note">Loading users…</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add / Edit Modal -->
+    <div class="modal-overlay" id="modal" style="display:none">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modal-title">Add Admin</h3>
+                <button type="button" class="modal-close" onclick="closeModal()">&#x2715;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-fields">
+                    <div class="field-group full-width">
+                        <label>Full Name</label>
+                        <input type="text" id="f-fullname" placeholder="e.g. Juan dela Cruz" />
+                    </div>
+                    <div class="field-group">
+                        <label>Username</label>
+                        <input type="text" id="f-username" placeholder="e.g. jdelacruz" />
+                    </div>
+                    <div class="field-group">
+                        <label>Assigned Mission</label>
+                        <select id="f-mission">
+                            <option value="">— None —</option>
+                        </select>
+                    </div>
+                    <div class="field-group">
+                        <label id="password-label">Password</label>
+                        <div class="pw-wrapper">
+                            <input type="password" id="f-password" placeholder="Enter password" />
+                            <button type="button" class="eye-btn" onclick="toggleEye('f-password', this)" tabindex="-1">&#128065;</button>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>Token <span class="label-hint">(optional)</span></label>
+                        <div class="token-input-wrap">
+                            <input type="text" id="f-token" placeholder="Enter or generate a token" />
+                            <button type="button" class="gen-token-btn" onclick="generateToken()" tabindex="-1">Generate</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-divider"></div>
+                <p class="modal-error" id="modal-error"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-cancel" onclick="closeModal()">Cancel</button>
+                <button type="button" class="modal-save" id="modal-save-btn" onclick="saveModal()">&#10003; Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reset Password Modal -->
+    <div class="modal-overlay" id="reset-modal" style="display:none">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="reset-modal-title">Reset Password</h3>
+                <button type="button" class="modal-close" onclick="closeResetModal()">&#x2715;</button>
+            </div>
+            <div class="modal-body">
+                <p class="reset-info" id="reset-info"></p>
+                <div class="modal-fields">
+                    <div class="field-group">
+                        <label>New Password</label>
+                        <div class="pw-wrapper">
+                            <input type="password" id="r-password" placeholder="Enter new password" />
+                            <button type="button" class="eye-btn" onclick="toggleEye('r-password', this)" tabindex="-1">&#128065;</button>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <label>Confirm Password</label>
+                        <div class="pw-wrapper">
+                            <input type="password" id="r-confirm" placeholder="Confirm new password" />
+                            <button type="button" class="eye-btn" onclick="toggleEye('r-confirm', this)" tabindex="-1">&#128065;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-divider"></div>
+                <p class="modal-error" id="reset-error"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-cancel" onclick="closeResetModal()">Cancel</button>
+                <button type="button" class="modal-save" id="reset-save-btn" onclick="saveResetPassword()">&#10003; Reset</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../Script/auth.js"></script>
+    <script src="../Script/Users.js"></script>
+</body>
+</html>

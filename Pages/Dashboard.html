@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard</title>
+    <link rel="stylesheet" href="../Styles/Dashboard.css" />
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+            <div class="brand">
+                <h2>SuperAdmin</h2>
+                <span>Treasury</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a class="active" href="Dashboard.html">Dashboard</a>
+                <a href="Users.html">Users</a>
+                <a href="Update.html">Update</a>
+                <a href="Settings.html">Settings</a>
+            </nav>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-header">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p id="header-greeting">Welcome back.</p>
+                </div>
+            </header>
+
+            <!-- Stat Cards -->
+            <section class="dashboard-cards">
+                <article class="stat-card">
+                    <h3>Total Admins</h3>
+                    <p id="stat-total">—</p>
+                </article>
+                <article class="stat-card active-card">
+                    <h3>Active Admins</h3>
+                    <p id="stat-active">—</p>
+                </article>
+                <article class="stat-card inactive-card">
+                    <h3>Inactive Admins</h3>
+                    <p id="stat-inactive">—</p>
+                </article>
+            </section>
+
+            <section class="dashboard-panel">
+                <!-- Recent Activity -->
+                <div class="panel-section">
+                    <h2>Recent Activity</h2>
+                    <div id="activity-area"><p class="loading-note">Loading…</p></div>
+                </div>
+
+                <!-- Active Users -->
+                <div class="panel-section">
+                    <h2>Active Admins</h2>
+                    <div id="active-area"><p class="loading-note">Loading…</p></div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../Script/auth.js"></script>
+    <script src="../Script/Dasboard.js"></script>
+</body>
+</html>

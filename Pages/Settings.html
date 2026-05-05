@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Settings</title>
+    <link rel="stylesheet" href="../Styles/Settings.css" />
+</head>
+<body>
+    <div class="settings-shell">
+        <aside class="settings-sidebar">
+            <div class="brand">
+                <h2>SuperAdmin</h2>
+                <span>Treasury</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Users.html">Users</a>
+                <a href="Update.html">Update</a>
+                <a href="Settings.html" class="active">Settings</a>
+            </nav>
+        </aside>
+
+        <main class="settings-main">
+
+            <!-- Header with logout -->
+            <header class="settings-header">
+                <div>
+                    <h1>Settings</h1>
+                    <p>Manage your super admin account.</p>
+                </div>
+                <button class="logout-btn" onclick="confirmLogout()">&#x2192; Log Out</button>
+            </header>
+
+            <div class="settings-content">
+
+                <!-- Profile Card -->
+                <section class="settings-card profile-card">
+                    <div class="card-section-title">Account Info</div>
+                    <div class="profile-center">
+                        <div class="avatar-circle" id="avatar-initials">SA</div>
+                        <p class="profile-name" id="profile-name">—</p>
+                        <p class="profile-username" id="profile-username">—</p>
+                        <span class="role-pill">Super Admin</span>
+                    </div>
+                </section>
+
+                <!-- Change Password Card -->
+                <section class="settings-card">
+                    <div class="card-section-title">Change Password</div>
+                    <p class="card-desc">Update your super admin login password.</p>
+                    <div class="settings-fields">
+                        <div class="fields-row">
+                            <div class="field-group">
+                                <label>Current Password</label>
+                                <div class="pw-wrap">
+                                    <input type="password" id="s-current" placeholder="Enter current password" />
+                                    <button type="button" class="eye-btn" onclick="togglePw('s-current', this)" tabindex="-1">&#128065;</button>
+                                </div>
+                            </div>
+                            <div class="field-group">
+                                <label>New Password</label>
+                                <div class="pw-wrap">
+                                    <input type="password" id="s-new" placeholder="Enter new password" />
+                                    <button type="button" class="eye-btn" onclick="togglePw('s-new', this)" tabindex="-1">&#128065;</button>
+                                </div>
+                            </div>
+                            <div class="field-group">
+                                <label>Confirm New Password</label>
+                                <div class="pw-wrap">
+                                    <input type="password" id="s-confirm" placeholder="Confirm new password" />
+                                    <button type="button" class="eye-btn" onclick="togglePw('s-confirm', this)" tabindex="-1">&#128065;</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="settings-error" id="pw-error"></p>
+                    <p class="settings-success" id="pw-success"></p>
+                    <div class="card-footer">
+                        <button class="save-btn" onclick="changePassword()">Update Password</button>
+                    </div>
+                </section>
+
+                <!-- Danger Zone -->
+                <section class="settings-card danger-card">
+                    <div class="card-section-title danger-title">Danger Zone</div>
+                    <p class="card-desc">These actions are irreversible. Proceed with caution.</p>
+                    <div class="danger-item">
+                        <div>
+                            <p class="danger-label">Clear All Sessions</p>
+                            <p class="danger-desc">Force logout from all active sessions immediately.</p>
+                        </div>
+                        <button class="danger-btn" onclick="clearSessions()">Clear Sessions</button>
+                    </div>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../Script/auth.js"></script>
+    <script src="../Script/Settings.js"></script>
+</body>
+</html>
