@@ -55,7 +55,7 @@ function flZoom(d) { zoomState.fl = Math.min(2, Math.max(0.5, zoomState.fl + d *
 
 function toggleFlMode() {
     flPctMode = !flPctMode;
-    document.getElementById('flPctBtn').textContent = flPctMode ? '# SEE AMOUNTS' : '% SEE PERCENTAGE';
+    document.getElementById('flPctBtn').textContent = flPctMode ? 'VIEW MONTHS' : '% SEE PERCENTAGE';
     renderAll(currentMonth - 1);
 }
 
@@ -177,9 +177,12 @@ function bsRow(r) {
     if (r.type === 'sub') return `<tr><td colspan="3" class="fs-label indent">${r.label}</td></tr>`;
     if (r.type === 'subtotal') return `<tr class="subtotal-row"><td class="fs-label">${r.label}</td><td class="${fmtClass(r.p)}">${fmt(r.p)}</td><td class="${fmtClass(r.c)}">${fmt(r.c)}</td></tr>`;
     if (r.type === 'total') return `<tr class="total-row highlight"><td class="fs-label">${r.label}</td><td class="fs-amount gold">${fmt(r.p)}</td><td class="fs-amount gold">${fmt(r.c)}</td></tr>`;
+    const drillClick = r.drill === 'cash' ? `onclick="openCashNote(currentMonth)"` :
+                       r.drill === 'ar'   ? `onclick="openArNote(currentMonth)"` :
+                       r.drill === 'ap'   ? `onclick="openApNote(currentMonth)"` : '';
     const drillAttr = r.drill ? `class="bs-drilldown-row"` : '';
     const drillIcon = r.drill ? `<span class="drill-icon">▶</span>` : '';
-    return `<tr ${drillAttr}><td class="fs-label indent-sub">${r.label}${drillIcon}</td><td class="${fmtClass(r.p)}">${fmt(r.p)}</td><td class="${fmtClass(r.c)}">${fmt(r.c)}</td></tr>`;
+    return `<tr ${drillAttr} ${drillClick}><td class="fs-label indent-sub">${r.label}${drillIcon}</td><td class="${fmtClass(r.p)}">${fmt(r.p)}</td><td class="${fmtClass(r.c)}">${fmt(r.c)}</td></tr>`;
 }
 
 function sum(...vals) {
@@ -187,8 +190,223 @@ function sum(...vals) {
 }
 
 // ══════════════════════════════════════════════════════════════════════════════
+// CASH NOTE MODAL — NOTE 3: CASH AND CASH EQUIVALENTS
+// ══════════════════════════════════════════════════════════════════════════════
+async function openCashNote(month) {
+    const overlay = document.getElementById('cashNoteOverlay');
+    const body    = document.getElementById('cashNoteBody');
+    overlay.classList.remove('hidden');
+    document.getElementById('cashNoteModal').classList.remove('hidden');
+    body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">Loading…</td></tr>';
+
+    try {
+        const rows = await tFetch('balance_sheet_note_cash',
+            `year=eq.2026&month=eq.${month}&order=sort_order.asc`);
+
+        body.innerHTML = rows.map(r => {
+            const isSubtotal = r.row_type === 'subtotal';
+            const isNegCur   = r.current_amount  != null && parseFloat(r.current_amount)  < 0;
+            const isNegPrev  = r.previous_amount != null && parseFloat(r.previous_amount) < 0;
+            const curFmt     = r.current_amount  != null ? fmt(r.current_amount)  : '';
+            const prevFmt    = r.previous_amount != null ? fmt(r.previous_amount) : '';
+            const rowCls     = isSubtotal ? 'cn-subtotal-row' : '';
+            const labelCls   = isSubtotal ? 'cn-label cn-label-bold' : (r.is_indent ? 'cn-label cn-label-indent' : 'cn-label');
+            const curCls     = isSubtotal ? 'cn-amount cn-amount-bold' + (isNegCur  ? ' cn-neg' : '') :
+                                            'cn-amount' + (isNegCur  ? ' cn-neg' : '');
+            const prevCls    = isSubtotal ? 'cn-amount cn-amount-bold' + (isNegPrev ? ' cn-neg' : '') :
+                                            'cn-amount' + (isNegPrev ? ' cn-neg' : '');
+            return `<tr class="${rowCls}">
+                <td class="${labelCls}">${r.label}</td>
+                <td class="${curCls}">${curFmt}</td>
+                <td class="${prevCls}">${prevFmt}</td>
+            </tr>`;
+        }).join('');
+
+        if (!rows.length) body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">No data for this period.</td></tr>';
+    } catch (e) {
+        body.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;color:#dc2626;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+function closeCashNote() {
+    document.getElementById('cashNoteOverlay').classList.add('hidden');
+    document.getElementById('cashNoteModal').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AR NOTE MODAL — NOTE 5: ACCOUNTS RECEIVABLE
+// ══════════════════════════════════════════════════════════════════════════════
+async function openArNote(month) {
+    document.getElementById('cashNoteOverlay').classList.remove('hidden');
+    document.getElementById('arNoteModal').classList.remove('hidden');
+    const body = document.getElementById('arNoteBody');
+    body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">Loading…</td></tr>';
+
+    try {
+        const rows = await tFetch('balance_sheet_note_ar',
+            `year=eq.2026&month=eq.${month}&order=sort_order.asc`);
+
+        body.innerHTML = rows.map(r => {
+            if (r.row_type === 'group') {
+                return `<tr class="cn-group-row"><td class="cn-group-label" colspan="3">${r.label}</td></tr>`;
+            }
+            const isSubtotal = r.row_type === 'subtotal';
+            const isSda      = r.drill_key === 'sda';
+            const isNegCur   = r.current_amount  != null && parseFloat(r.current_amount)  < 0;
+            const isNegPrev  = r.previous_amount != null && parseFloat(r.previous_amount) < 0;
+            const curFmt     = r.current_amount  != null ? fmt(r.current_amount)  : '';
+            const prevFmt    = r.previous_amount != null ? fmt(r.previous_amount) : '';
+            const rowCls     = isSubtotal ? 'cn-subtotal-row' : '';
+            const labelCls   = isSubtotal ? 'cn-label cn-label-bold'
+                             : r.is_indent ? 'cn-label cn-label-indent' : 'cn-label';
+            const curCls     = (isSubtotal ? 'cn-amount cn-amount-bold' : 'cn-amount') + (isNegCur  ? ' cn-neg' : '');
+            const prevCls    = (isSubtotal ? 'cn-amount cn-amount-bold' : 'cn-amount') + (isNegPrev ? ' cn-neg' : '');
+            const sdaBtn     = isSda ? `<span class="cn-sda-dot" onclick="event.stopPropagation();openArSda(${month})">▸</span>` : '';
+            return `<tr class="${rowCls}">
+                <td class="${labelCls}">${r.label}${sdaBtn}</td>
+                <td class="${curCls}">${curFmt}</td>
+                <td class="${prevCls}">${prevFmt}</td>
+            </tr>`;
+        }).join('');
+
+        if (!rows.length) body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">No data for this period.</td></tr>';
+    } catch (e) {
+        body.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;color:#dc2626;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+function closeArNote() {
+    document.getElementById('cashNoteOverlay').classList.add('hidden');
+    document.getElementById('arNoteModal').classList.add('hidden');
+    closeArSda();
+}
+
+// ── AR SDA drill-down ─────────────────────────────────────────────────────────
+async function openArSda(month) {
+    document.getElementById('arSdaModal').classList.remove('hidden');
+    const body = document.getElementById('arSdaBody');
+    body.innerHTML = '<tr><td colspan="2" style="text-align:center;padding:20px;color:#64748b;">Loading…</td></tr>';
+
+    try {
+        const rows = await tFetch('balance_sheet_note_ar_sda',
+            `year=eq.2026&month=eq.${month}&order=sort_order.asc`);
+
+        body.innerHTML = rows.map(r => {
+            const isNeg = r.amount != null && parseFloat(r.amount) < 0;
+            const amtFmt = r.amount != null ? fmt(r.amount) : '0';
+            return `<tr>
+                <td class="cn-label cn-label-indent">${r.entity_name}</td>
+                <td class="cn-amount${isNeg ? ' cn-neg' : ''}">${amtFmt}</td>
+            </tr>`;
+        }).join('');
+
+        if (!rows.length) body.innerHTML = '<tr><td colspan="2" style="text-align:center;padding:20px;color:#64748b;">No data.</td></tr>';
+    } catch (e) {
+        body.innerHTML = `<tr><td colspan="2" style="text-align:center;padding:20px;color:#dc2626;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+function closeArSda() {
+    document.getElementById('arSdaModal').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AP NOTE MODAL — NOTE 10: ACCOUNTS PAYABLE
+// ══════════════════════════════════════════════════════════════════════════════
+async function openApNote(month) {
+    document.getElementById('cashNoteOverlay').classList.remove('hidden');
+    document.getElementById('apNoteModal').classList.remove('hidden');
+    const body = document.getElementById('apNoteBody');
+    body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">Loading…</td></tr>';
+
+    try {
+        const rows = await tFetch('balance_sheet_note_ap',
+            `year=eq.2026&month=eq.${month}&order=sort_order.asc`);
+
+        body.innerHTML = rows.map(r => {
+            if (r.row_type === 'group') {
+                return `<tr class="cn-group-row"><td class="cn-group-label" colspan="3">${r.label}</td></tr>`;
+            }
+            const isSubtotal = r.row_type === 'subtotal';
+            const isSda      = r.drill_key === 'sdaAp';
+            const isNegCur   = r.current_amount  != null && parseFloat(r.current_amount)  < 0;
+            const isNegPrev  = r.previous_amount != null && parseFloat(r.previous_amount) < 0;
+            const curFmt     = r.current_amount  != null ? fmt(r.current_amount)  : '';
+            const prevFmt    = r.previous_amount != null ? fmt(r.previous_amount) : '';
+            const rowCls     = isSubtotal ? 'cn-subtotal-row' : '';
+            const labelCls   = isSubtotal ? 'cn-label cn-label-bold'
+                             : r.is_indent ? 'cn-label cn-label-indent' : 'cn-label';
+            const curCls     = (isSubtotal ? 'cn-amount cn-amount-bold' : 'cn-amount') + (isNegCur  ? ' cn-neg' : '');
+            const prevCls    = (isSubtotal ? 'cn-amount cn-amount-bold' : 'cn-amount') + (isNegPrev ? ' cn-neg' : '');
+            const sdaBtn     = isSda ? `<span class="cn-sda-dot" onclick="event.stopPropagation();openApSda(${month})">▸</span>` : '';
+            return `<tr class="${rowCls}">
+                <td class="${labelCls}">${r.label}${sdaBtn}</td>
+                <td class="${curCls}">${curFmt}</td>
+                <td class="${prevCls}">${prevFmt}</td>
+            </tr>`;
+        }).join('');
+
+        if (!rows.length) body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">No data for this period.</td></tr>';
+    } catch (e) {
+        body.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;color:#dc2626;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+function closeApNote() {
+    document.getElementById('cashNoteOverlay').classList.add('hidden');
+    document.getElementById('apNoteModal').classList.add('hidden');
+    closeApSda();
+}
+
+// ── AP SDA drill-down ─────────────────────────────────────────────────────────
+async function openApSda(month) {
+    document.getElementById('apSdaModal').classList.remove('hidden');
+    const body = document.getElementById('apSdaBody');
+    body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">Loading…</td></tr>';
+
+    try {
+        const rows = await tFetch('balance_sheet_note_ap_sda',
+            `year=eq.2026&month=eq.${month}&order=sort_order.asc`);
+
+        body.innerHTML = rows.map(r => {
+            const isNegBase = r.base_amount    != null && parseFloat(r.base_amount)    < 0;
+            const isNegCur  = r.current_amount != null && parseFloat(r.current_amount) < 0;
+            const baseFmt   = r.base_amount    != null ? fmt(r.base_amount)    : '0';
+            const curFmt    = r.current_amount != null ? fmt(r.current_amount) : '0';
+            return `<tr>
+                <td class="cn-label cn-label-indent">${r.entity_name}</td>
+                <td class="cn-amount${isNegBase ? ' cn-neg' : ''}">${baseFmt}</td>
+                <td class="cn-amount${isNegCur  ? ' cn-neg' : ''}">${curFmt}</td>
+            </tr>`;
+        }).join('');
+
+        if (!rows.length) body.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:20px;color:#64748b;">No data.</td></tr>';
+    } catch (e) {
+        body.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;color:#dc2626;">Error: ${e.message}</td></tr>`;
+    }
+}
+
+function closeApSda() {
+    document.getElementById('apSdaModal').classList.add('hidden');
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
 // INCOME STATEMENT
 // ══════════════════════════════════════════════════════════════════════════════
+// Keys that render as highlighted total rows
+const IS_TOTAL_KEYS = new Set([
+    'TOTAL_EARNED_OPERATING_INCOME','TOTAL_OPERATING_EXPENSES',
+    'INCREASE_BEFORE_APPROP','INCREASE_FROM_OPERATIONS',
+    'INCREASE_BEFORE_TRANSFERS','NET_ASSETS_INCREASE_YEAR',
+    'NET_ASSETS_END'
+]);
+// Keys that render as subtotal rows
+const IS_SUBTOTAL_KEYS = new Set([
+    'NET_APPROP_RETAINED','NET_CAPITAL_INCREASE'
+]);
+// Key for the special budgeted-expenses row
+const BUDGET_ROW_KEY = 'TOTAL_OPERATING_EXPENSES';
+
 async function renderIncomeStatement(month) {
     const tbody = document.getElementById('isTableBody');
     tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:20px;color:#64748b;">Loading…</td></tr>';
@@ -196,50 +414,68 @@ async function renderIncomeStatement(month) {
     try {
         const [lines, budgets] = await Promise.all([
             tFetch('income_statement_lines', `report_year=eq.2026&report_month=eq.${month}&order=sort_order.asc`),
-            tFetch('income_statement_budgets', `budget_year=eq.2026&select=income_statement_line_id,budget_amount`)
+            tFetch('income_statement_budgets', `select=income_statement_line_id,budget_amount`)
         ]);
 
-        // Map budgets by line id
+        // Map budgets by line id (use first match per line_id regardless of year)
         const budgetMap = {};
-        budgets.forEach(b => { budgetMap[b.income_statement_line_id] = b.budget_amount; });
+        budgets.forEach(b => {
+            if (!(b.income_statement_line_id in budgetMap)) {
+                budgetMap[b.income_statement_line_id] = b.budget_amount;
+            }
+        });
 
+        const monthName = MONTH_NAMES[month - 1].toUpperCase();
         let html = '';
         let lastSection = null;
 
         lines.forEach(line => {
+            const key = (line.line_key || '').toUpperCase();
             if (line.section !== lastSection) {
                 html += `<tr class="section-header"><td colspan="4">${line.section}</td></tr>`;
                 lastSection = line.section;
             }
             const budget = budgetMap[line.id];
-            const rowClass = line.line_key.includes('total') ? 'total-row highlight' :
-                             line.line_key.includes('subtotal') ? 'subtotal-row' : '';
-            const labelClass = rowClass ? 'fs-label' : 'fs-label indent-sub';
+            const isTotal    = IS_TOTAL_KEYS.has(key);
+            const isSubtotal = IS_SUBTOTAL_KEYS.has(key);
+            const rowClass   = isTotal ? 'income-highlight-row' : isSubtotal ? 'subtotal-row' : '';
+            const labelClass = (isTotal || isSubtotal) ? 'fs-label' : 'fs-label indent-sub';
+
             html += `<tr class="${rowClass}">
                 <td class="${labelClass}">${line.label}</td>
                 <td class="${fmtClass(line.total_2026)}">${fmt(line.total_2026)}</td>
                 <td class="${fmtClass(budget)}">${fmt(budget)}</td>
                 <td class="${fmtClass(line.total_2025)}">${fmt(line.total_2025)}</td>
             </tr>`;
+
+            // Insert "BUDGETED OP EXPENSES" row right after TOTAL_OPERATING_EXPENSES
+            if (key === BUDGET_ROW_KEY) {
+                html += `<tr class="income-budget-row">
+                    <td class="fs-label">BUDGETED OP EXPENSES ${monthName} 2026</td>
+                    <td class="fs-amount"></td>
+                    <td class="${fmtClass(budget)}">${fmt(budget)}</td>
+                    <td class="fs-amount"></td>
+                </tr>`;
+            }
         });
 
         tbody.innerHTML = html || '<tr><td colspan="4" style="text-align:center;padding:20px;color:#64748b;">No data for this period.</td></tr>';
 
-        // KPI — find key lines
-        const find = key => lines.find(l => l.line_key === key);
-        const revenue = find('total_earned_operating_income') || find('total_income') || {};
-        const expenses = find('total_operating_expenses') || find('total_expenses') || {};
-        const capital = find('capital_activity') || {};
-        const netAssets = find('net_assets') || find('total_net_assets') || {};
+        // KPI
+        const find = key => lines.find(l => (l.line_key || '').toUpperCase() === key);
+        const revenue  = find('TOTAL_EARNED_OPERATING_INCOME') || {};
+        const expenses = find('TOTAL_OPERATING_EXPENSES') || {};
+        const capital  = find('INCREASE_BEFORE_TRANSFERS') || find('NET_CAPITAL_INCREASE') || {};
+        const netEnd   = find('NET_ASSETS_END') || {};
 
-        document.getElementById('kpiRevenue').textContent = fmt(revenue.total_2026);
-        document.getElementById('kpiRevenueSub').textContent = 'Budget: ' + fmt(budgetMap[revenue.id]);
-        document.getElementById('kpiExpenses').textContent = fmt(expenses.total_2026);
-        document.getElementById('kpiExpensesSub').textContent = 'Budget: ' + fmt(budgetMap[expenses.id]);
-        document.getElementById('kpiCapital').textContent = fmt(capital.total_2026);
-        document.getElementById('kpiCapitalSub').textContent = 'Prev: ' + fmt(capital.total_2025);
-        document.getElementById('kpiNetAssets').textContent = fmt(netAssets.total_2026);
-        document.getElementById('kpiNetAssetsSub').textContent = 'Prev: ' + fmt(netAssets.total_2025);
+        document.getElementById('kpiRevenue').textContent   = fmt(revenue.total_2026);
+        document.getElementById('kpiRevenueSub').textContent = MONTH_NAMES[month-1] + ' 2026';
+        document.getElementById('kpiExpenses').textContent  = fmt(expenses.total_2026);
+        document.getElementById('kpiExpensesSub').textContent = MONTH_NAMES[month-1] + ' 2026';
+        document.getElementById('kpiCapital').textContent   = fmt(capital.total_2026);
+        document.getElementById('kpiCapitalSub').textContent = MONTH_NAMES[month-1] + ' 2026';
+        document.getElementById('kpiNetAssets').textContent = fmt(netEnd.total_2026);
+        document.getElementById('kpiNetAssetsSub').textContent = MONTH_NAMES[month-1] + ', 2026';
 
     } catch (e) {
         tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:20px;color:#dc2626;">Error: ${e.message}</td></tr>`;
@@ -257,44 +493,84 @@ async function renderFinancialIndicator(month) {
         const data = await tFetch('financial_indicator', `report_year=eq.2026&report_month=eq.${month}&limit=1`);
         const d = data[0] || {};
 
-        const pct = (v, total) => (total ? ((parseFloat(v) || 0) / total * 100).toFixed(1) + '%' : '—');
-        const show = (v26, v25) => flPctMode ? '—' : [fmt(v26), fmt(v25)];
+        // Available working capital = current_assets - current_liabilities - donor_restriction
+        const awc26 = (parseFloat(d.current_assets_2026)||0) - (parseFloat(d.current_liabilities_2026)||0) - (parseFloat(d.donor_restriction_2026)||0);
+        const awc25 = (parseFloat(d.current_assets_2025)||0) - (parseFloat(d.current_liabilities_2025)||0) - (parseFloat(d.donor_restriction_2025)||0);
+
+        // Recommended working capital minimum = core_expenses / 12 * recommended_months
+        const recWc26 = (parseFloat(d.recommended_months_wc_2026)||0) * (parseFloat(d.core_operating_2026)||0) / 12;
+        const recWc25 = (parseFloat(d.recommended_months_wc_2025)||0) * (parseFloat(d.core_operating_2025)||0) / 12;
+        const surplusWc26 = awc26 - recWc26;
+        const surplusWc25 = awc25 - recWc25;
+
+        // Available liquid assets = cash - held_for_agency + investments
+        const ala26 = (parseFloat(d.cash_2026)||0) - (parseFloat(d.held_for_agency_2026)||0) + (parseFloat(d.investments_2026)||0);
+        const ala25 = (parseFloat(d.cash_2025)||0) - (parseFloat(d.held_for_agency_2025)||0) + (parseFloat(d.investments_2025)||0);
+        const recLa26 = (parseFloat(d.recommended_months_la_2026)||0) * (parseFloat(d.core_operating_2026)||0) / 12;
+        const recLa25 = (parseFloat(d.recommended_months_la_2025)||0) * (parseFloat(d.core_operating_2025)||0) / 12;
+        const surplusLa26 = ala26 - recLa26;
+        const surplusLa25 = ala25 - recLa25;
+
+        const wm26 = parseFloat(d.working_months_2026);
+        const wm25 = parseFloat(d.working_months_2025);
+        const lm26 = parseFloat(d.liquid_months_2026);
+        const lm25 = parseFloat(d.liquid_months_2025);
+
+        // Percentage = months / required_months * 100
+        const reqWc = parseFloat(d.required_months_wc) || 1;
+        const reqLa = parseFloat(d.required_months_la) || 1;
+        const wcPct26 = isNaN(wm26) ? null : (wm26 / reqWc * 100);
+        const wcPct25 = isNaN(wm25) ? null : (wm25 / reqWc * 100);
+        const laPct26 = isNaN(lm26) ? null : (lm26 / reqLa * 100);
+        const laPct25 = isNaN(lm25) ? null : (lm25 / reqLa * 100);
 
         const rows = [
-            { type: 'section', label: 'OPERATING ACTIVITY' },
-            { label: 'Core Operating Income', c: d.core_operating_2026, p: d.core_operating_2025 },
-            { label: 'Core Remittance', c: d.core_remittance_2026, p: d.core_remittance_2025 },
+            { type: 'section', label: 'CORE EXPENSES' },
+            { label: 'OPERATING EXPENSES',       c: d.core_operating_2026,   p: d.core_operating_2025 },
+            { label: 'NET OUTGOING REMITTANCE',  c: d.core_remittance_2026,  p: d.core_remittance_2025 },
+            { type: 'subtotal', label: 'TOTAL CORE EXPENSES',
+              c: (parseFloat(d.core_operating_2026)||0)+(parseFloat(d.core_remittance_2026)||0),
+              p: (parseFloat(d.core_operating_2025)||0)+(parseFloat(d.core_remittance_2025)||0) },
             { type: 'spacer' },
-            { type: 'section', label: 'LIQUIDITY' },
-            { label: 'Current Assets', c: d.current_assets_2026, p: d.current_assets_2025 },
-            { label: 'Current Liabilities', c: d.current_liabilities_2026, p: d.current_liabilities_2025 },
-            { label: 'Donor Restriction', c: d.donor_restriction_2026, p: d.donor_restriction_2025 },
-            { label: 'Cash', c: d.cash_2026, p: d.cash_2025 },
-            { label: 'Cash Held for Agency', c: d.held_for_agency_2026, p: d.held_for_agency_2025 },
-            { label: 'Investments', c: d.investments_2026, p: d.investments_2025 },
+            { type: 'section', label: 'AVAILABLE WORKING CAPITAL' },
+            { label: 'CURRENT ASSETS',                              c: d.current_assets_2026,      p: d.current_assets_2025 },
+            { label: 'MINUS: CURRENT LIABILITIES',                  c: d.current_liabilities_2026, p: d.current_liabilities_2025 },
+            { label: 'MINUS: CURRENT ASSETS HELD FOR DONOR RESTRICTION', c: d.donor_restriction_2026, p: d.donor_restriction_2025 },
+            { type: 'subtotal', label: 'AVAILABLE WORKING CAPITAL', c: awc26, p: awc25 },
+            { label: 'RECOMMENDED WORKING CAPITAL MINIMUM',         c: recWc26, p: recWc25 },
+            { label: 'SURPLUS (SHORTFALL) IN RECOMMENDED MINIMUM',  c: surplusWc26, p: surplusWc25 },
+            { type: 'months', label: 'AVAILABLE WORKING CAPITAL IN MONTHS',
+              c: wm26, p: wm25, pct26: wcPct26, pct25: wcPct25 },
             { type: 'spacer' },
-            { type: 'section', label: 'WORKING CAPITAL MONTHS' },
-            { label: 'Available Working Capital (Months)', c: d.working_months_2026, p: d.working_months_2025, isMonths: true },
-            { label: 'Recommended Months', c: d.recommended_months_wc_2026, p: d.recommended_months_wc_2025, isMonths: true },
-            { label: 'Required Months', c: d.required_months_wc, p: d.required_months_wc, isMonths: true },
-            { type: 'spacer' },
-            { type: 'section', label: 'LIQUID ASSETS MONTHS' },
-            { label: 'Available Liquid Assets (Months)', c: d.liquid_months_2026, p: d.liquid_months_2025, isMonths: true },
-            { label: 'Recommended Months', c: d.recommended_months_la_2026, p: d.recommended_months_la_2025, isMonths: true },
-            { label: 'Required Months', c: d.required_months_la, p: d.required_months_la, isMonths: true },
+            { type: 'section', label: 'AVAILABLE LIQUID ASSETS' },
+            { label: 'CASH AND CASH EQUIVALENTS', c: d.cash_2026,        p: d.cash_2025 },
+            { label: 'LESS: HELD FOR AGENCY',     c: d.held_for_agency_2026, p: d.held_for_agency_2025 },
+            { label: 'INVESTMENTS',               c: d.investments_2026,  p: d.investments_2025 },
+            { type: 'subtotal', label: 'AVAILABLE LIQUID ASSETS', c: ala26, p: ala25 },
+            { label: 'RECOMMENDED LIQUID ASSETS MINIMUM',          c: recLa26, p: recLa25 },
+            { label: 'SURPLUS (SHORTFALL) IN RECOMMENDED MINIMUM', c: surplusLa26, p: surplusLa25 },
+            { type: 'months', label: 'AVAILABLE LIQUID ASSETS IN MONTHS',
+              c: lm26, p: lm25, pct26: laPct26, pct25: laPct25 },
         ];
 
         tbody.innerHTML = rows.map(r => flRow(r)).join('');
 
-        // KPI
-        const wcVal = parseFloat(d.working_months_2026);
-        const laVal = parseFloat(d.liquid_months_2026);
-        document.getElementById('kpiWcMonths').innerHTML = isNaN(wcVal)
-            ? '<span class="fl-month-val">—</span>'
-            : `<span class="fl-month-val">${wcVal.toFixed(1)}</span><span class="fl-month-label">mos</span>`;
-        document.getElementById('kpiLaMonths').innerHTML = isNaN(laVal)
-            ? '<span class="fl-month-val">—</span>'
-            : `<span class="fl-month-val">${laVal.toFixed(1)}</span><span class="fl-month-label">mos</span>`;
+        // KPI cards
+        const wcVal = wm26;
+        const laVal = lm26;
+        if (flPctMode) {
+            document.getElementById('kpiWcMonths').innerHTML =
+                wcPct26 != null ? `<span class="fl-month-val">${wcPct26.toFixed(2)}%</span>` : '<span class="fl-month-val">—</span>';
+            document.getElementById('kpiLaMonths').innerHTML =
+                laPct26 != null ? `<span class="fl-month-val">${laPct26.toFixed(2)}%</span>` : '<span class="fl-month-val">—</span>';
+        } else {
+            document.getElementById('kpiWcMonths').innerHTML = isNaN(wcVal)
+                ? '<span class="fl-month-val">—</span>'
+                : `<span class="fl-month-val">${Math.round(wcVal)}</span><span class="fl-month-label"> months</span>`;
+            document.getElementById('kpiLaMonths').innerHTML = isNaN(laVal)
+                ? '<span class="fl-month-val">—</span>'
+                : `<span class="fl-month-val">${Math.round(laVal)}</span><span class="fl-month-label"> months</span>`;
+        }
 
     } catch (e) {
         tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;padding:20px;color:#dc2626;">Error: ${e.message}</td></tr>`;
@@ -304,13 +580,34 @@ async function renderFinancialIndicator(month) {
 function flRow(r) {
     if (r.type === 'spacer') return '<tr class="spacer"><td colspan="3"></td></tr>';
     if (r.type === 'section') return `<tr class="section-header"><td colspan="3">${r.label}</td></tr>`;
-    const fmtVal = r.isMonths
-        ? v => (v != null && !isNaN(parseFloat(v)) ? parseFloat(v).toFixed(2) : '—')
-        : v => fmt(v);
+
+    if (r.type === 'months') {
+        // Special highlighted row — shows months or percentage
+        const v26 = flPctMode
+            ? (r.pct26 != null ? r.pct26.toFixed(2) + '%' : '—')
+            : (!isNaN(r.c) && r.c != null ? Math.round(r.c) + ' MONTHS' : '—');
+        const v25 = flPctMode
+            ? (r.pct25 != null ? r.pct25.toFixed(2) + '%' : '—')
+            : (!isNaN(r.p) && r.p != null ? Math.round(r.p) + ' MONTHS' : '—');
+        return `<tr class="fl-months-row">
+            <td class="fs-label">${r.label}</td>
+            <td class="fl-months-val">${v26}</td>
+            <td class="fl-months-val">${v25}</td>
+        </tr>`;
+    }
+
+    if (r.type === 'subtotal') {
+        return `<tr class="subtotal-row">
+            <td class="fs-label">${r.label}</td>
+            <td class="${fmtClass(r.c)}">${fmt(r.c)}</td>
+            <td class="${fmtClass(r.p)}">${fmt(r.p)}</td>
+        </tr>`;
+    }
+
     return `<tr>
         <td class="fs-label indent-sub">${r.label}</td>
-        <td class="${fmtClass(r.c)}">${fmtVal(r.c)}</td>
-        <td class="${fmtClass(r.p)}">${fmtVal(r.p)}</td>
+        <td class="${fmtClass(r.c)}">${fmt(r.c)}</td>
+        <td class="${fmtClass(r.p)}">${fmt(r.p)}</td>
     </tr>`;
 }
 

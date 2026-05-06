@@ -32,7 +32,25 @@
                     <h1>Settings</h1>
                     <p>Manage your super admin account.</p>
                 </div>
-                <button class="logout-btn" onclick="confirmLogout()">&#x2192; Log Out</button>
+                <!-- Account dropdown -->
+                <div class="acct-dropdown" id="acctDropdown">
+                    <button class="acct-trigger" onclick="toggleDropdown()">
+                        <div class="acct-avatar" id="acct-avatar-initials">SA</div>
+                        <span class="acct-name" id="acct-trigger-name">Admin</span>
+                        <span class="acct-chevron" id="acctChevron">&#9660;</span>
+                    </button>
+                    <div class="acct-menu" id="acctMenu">
+                        <button class="acct-menu-item" onclick="toggleTheme()">
+                            <span class="acct-menu-icon" id="themeIcon">&#9790;</span>
+                            <span id="themeLabel">Light Mode</span>
+                        </button>
+                        <div class="acct-menu-divider"></div>
+                        <button class="acct-menu-item acct-menu-danger" onclick="confirmLogout()">
+                            <span class="acct-menu-icon">&#x2192;</span>
+                            Log Out
+                        </button>
+                    </div>
+                </div>
             </header>
 
             <div class="settings-content">
@@ -42,9 +60,11 @@
                     <div class="card-section-title">Account Info</div>
                     <div class="profile-center">
                         <div class="avatar-circle" id="avatar-initials">SA</div>
-                        <p class="profile-name" id="profile-name">—</p>
-                        <p class="profile-username" id="profile-username">—</p>
-                        <span class="role-pill">Super Admin</span>
+                        <div class="profile-info">
+                            <p class="profile-name" id="profile-name">—</p>
+                            <p class="profile-username" id="profile-username">—</p>
+                            <span class="role-pill">Super Admin</span>
+                        </div>
                     </div>
                 </section>
 

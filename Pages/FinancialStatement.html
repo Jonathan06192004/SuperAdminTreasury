@@ -34,18 +34,17 @@
                 </div>
             </header>
 
-            <!-- Tab Nav -->
-            <div class="fs-tab-nav">
-                <button class="fs-tab-btn active" onclick="switchTab('balance', this)">BALANCE SHEET</button>
-                <button class="fs-tab-btn" onclick="switchTab('income', this)">INCOME STATEMENT</button>
-                <button class="fs-tab-btn" onclick="switchTab('cashflow', this)">CASH FLOW</button>
-                <button class="fs-tab-btn" onclick="switchTab('equity', this)">FINANCIAL INDICATOR</button>
-            </div>
-
             <div class="fs-body-wrap">
 
                 <!-- LEFT: panels -->
                 <div class="fs-panels">
+                    <!-- Tab Nav sits above the table only -->
+                    <div class="fs-tab-nav">
+                        <button class="fs-tab-btn active" onclick="switchTab('balance', this)">BALANCE SHEET</button>
+                        <button class="fs-tab-btn" onclick="switchTab('income', this)">INCOME STATEMENT</button>
+                        <button class="fs-tab-btn" onclick="switchTab('cashflow', this)">CASH FLOW</button>
+                        <button class="fs-tab-btn" onclick="switchTab('equity', this)">FINANCIAL INDICATOR</button>
+                    </div>
 
                     <!-- BALANCE SHEET -->
                     <div class="fs-panel active" id="tab-balance">
@@ -70,12 +69,13 @@
                         </div>
                         <div class="fs-col-header" id="bsColHeader">
                             <span class="fs-col-desc"></span>
-                            <span class="fs-col-label"><span class="fs-col-year" id="bsColYear1">2025</span><span class="fs-col-total">TOTAL</span></span>
-                            <span class="fs-col-label"><span class="fs-col-year" id="bsColYear2">2026</span><span class="fs-col-total">TOTAL</span></span>
+                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="bsColYear1">2025</span><span class="fs-col-total">TOTAL</span></span></span>
+                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="bsColYear2">2026</span><span class="fs-col-total">TOTAL</span></span></span>
                         </div>
                         <div class="fs-zoom-outer">
                             <div class="fs-table-scroll" id="bsTableScroll">
                                 <table class="fs-table" id="bsTable">
+                                    <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"></colgroup>
                                     <tbody id="bsTableBody"></tbody>
                                 </table>
                             </div>
@@ -105,13 +105,14 @@
                         </div>
                         <div class="fs-col-header" id="isColHeader">
                             <span class="fs-col-desc"></span>
-                            <span class="fs-col-label"><span class="fs-col-year" id="isColYear1">2026</span><span class="fs-col-total">TOTAL</span></span>
-                            <span class="fs-col-label"><span class="fs-col-year" id="isColYear2">2026</span><span class="fs-col-total">BUDGET</span></span>
-                            <span class="fs-col-label"><span class="fs-col-year" id="isColYear3">2025</span><span class="fs-col-total">TOTAL</span></span>
+                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="isColYear1">2026</span><span class="fs-col-total">TOTAL</span></span></span>
+                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="isColYear2">2026</span><span class="fs-col-total">BUDGET</span></span></span>
+                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="isColYear3">2025</span><span class="fs-col-total">TOTAL</span></span></span>
                         </div>
                         <div class="fs-zoom-outer">
                             <div class="fs-table-scroll" id="isTableScroll">
                                 <table class="fs-table" id="isTable">
+                                    <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"><col class="col-amt"></colgroup>
                                     <thead class="fs-thead-hidden">
                                         <tr>
                                             <th class="fs-th">OPERATING ACTIVITY</th>
@@ -181,12 +182,13 @@
                         </div>
                         <div class="fs-col-header" id="flColHeader">
                             <span class="fs-col-desc"></span>
-                            <span class="fs-col-label"><span class="fs-col-year" id="flColYear1">2026</span><span class="fs-col-total">CURRENT</span></span>
-                            <span class="fs-col-label"><span class="fs-col-year" id="flColYear2">2025</span><span class="fs-col-total">PREVIOUS</span></span>
+                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="flColYear1">2026</span><span class="fs-col-total">CURRENT</span></span></span>
+                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="flColYear2">2025</span><span class="fs-col-total">PREVIOUS</span></span></span>
                         </div>
                         <div class="fs-zoom-outer">
                             <div class="fs-table-scroll" id="flTableScroll">
                                 <table class="fs-table" id="flTable">
+                                    <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"></colgroup>
                                     <thead class="fs-thead-hidden">
                                         <tr>
                                             <th class="fs-th"></th>
@@ -337,6 +339,102 @@
             </div>
             <input type="hidden" id="budgetLineId" />
             <input type="hidden" id="budgetExistingId" />
+        </div>
+    </div>
+
+    <!-- Cash Note Modal -->
+    <div class="crud-overlay hidden" id="cashNoteOverlay" onclick="closeCashNote()"></div>
+    <div class="cash-note-modal hidden" id="cashNoteModal">
+        <div class="cash-note-header">
+            <span class="cash-note-title">NOTE 3 &ndash; CASH AND CASH EQUIVALENTS</span>
+            <button class="cash-note-close" onclick="closeCashNote()">&#10005;</button>
+        </div>
+        <div class="cash-note-col-header">
+            <span class="cash-note-col-desc"></span>
+            <span class="cash-note-col-label">CURRENT</span>
+            <span class="cash-note-col-label">PREVIOUS</span>
+        </div>
+        <div class="cash-note-body-wrap">
+            <table class="cash-note-table">
+                <tbody id="cashNoteBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AR Note Modal -->
+    <div class="cash-note-modal hidden" id="arNoteModal">
+        <div class="cash-note-header">
+            <span class="cash-note-title">NOTE 5 &ndash; ACCOUNTS RECEIVABLE</span>
+            <button class="cash-note-close" onclick="closeArNote()">&#10005;</button>
+        </div>
+        <div class="cash-note-col-header">
+            <span class="cash-note-col-desc"></span>
+            <span class="cash-note-col-label">CURRENT</span>
+            <span class="cash-note-col-label">PREVIOUS</span>
+        </div>
+        <div class="cash-note-body-wrap">
+            <table class="cash-note-table">
+                <tbody id="arNoteBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AR SDA Drill-down Modal -->
+    <div class="ar-sda-modal hidden" id="arSdaModal">
+        <div class="cash-note-header" style="flex-direction:column;align-items:flex-start;gap:2px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <span class="cash-note-title">NOTE 5 &mdash; ACCOUNTS RECEIVABLE</span>
+                <button class="cash-note-close" onclick="closeArSda()">&#10005;</button>
+            </div>
+            <span class="ar-sda-subtitle">SDA ENTITIES WITHIN SWPUC</span>
+        </div>
+        <div class="cash-note-col-header">
+            <span class="cash-note-col-desc" style="color:#f5c800;font-family:'Montserrat',sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:2px;">DESCRIPTION</span>
+            <span class="cash-note-col-label">CURRENT</span>
+        </div>
+        <div class="cash-note-body-wrap">
+            <table class="cash-note-table">
+                <tbody id="arSdaBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AP Note Modal -->
+    <div class="cash-note-modal hidden" id="apNoteModal">
+        <div class="cash-note-header">
+            <span class="cash-note-title">NOTE 10 &ndash; ACCOUNTS PAYABLE</span>
+            <button class="cash-note-close" onclick="closeApNote()">&#10005;</button>
+        </div>
+        <div class="cash-note-col-header">
+            <span class="cash-note-col-desc"></span>
+            <span class="cash-note-col-label">CURRENT</span>
+            <span class="cash-note-col-label">PREVIOUS</span>
+        </div>
+        <div class="cash-note-body-wrap">
+            <table class="cash-note-table">
+                <tbody id="apNoteBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- AP SDA Drill-down Modal -->
+    <div class="ar-sda-modal hidden" id="apSdaModal" style="width:700px;">
+        <div class="cash-note-header" style="flex-direction:column;align-items:flex-start;gap:2px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+                <span class="cash-note-title">NOTE 10 &mdash; ACCOUNTS PAYABLE</span>
+                <button class="cash-note-close" onclick="closeApSda()">&#10005;</button>
+            </div>
+            <span class="ar-sda-subtitle">SDA ENTITIES WITHIN SWPUC</span>
+        </div>
+        <div class="cash-note-col-header">
+            <span class="cash-note-col-desc" style="color:#f5c800;font-family:'Montserrat',sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:2px;">DESCRIPTION</span>
+            <span class="cash-note-col-label">BASE AMOUNT</span>
+            <span class="cash-note-col-label">CURRENT</span>
+        </div>
+        <div class="cash-note-body-wrap">
+            <table class="cash-note-table">
+                <tbody id="apSdaBody"></tbody>
+            </table>
         </div>
     </div>
 

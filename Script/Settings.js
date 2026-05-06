@@ -26,6 +26,8 @@ function loadProfile() {
     document.getElementById('profile-username').textContent = '@' + user.username;
     const initials = user.full_name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase();
     document.getElementById('avatar-initials').textContent = initials;
+    document.getElementById('acct-avatar-initials').textContent = initials;
+    document.getElementById('acct-trigger-name').textContent = user.full_name.split(' ')[0];
 }
 
 // ── Change password ───────────────────────────────────────────────────────────
@@ -66,6 +68,39 @@ async function changePassword() {
         errEl.textContent = 'Failed: ' + e.message;
     }
 }
+
+// ── Dropdown ──────────────────────────────────────────────────────────────────
+
+function toggleDropdown() {
+    const dd = document.getElementById('acctDropdown');
+    dd.classList.toggle('open');
+}
+
+document.addEventListener('click', function(e) {
+    const dd = document.getElementById('acctDropdown');
+    if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+});
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+
+function applyTheme(mode) {
+    const isLight = mode === 'light';
+    document.body.classList.toggle('light-mode', isLight);
+    const icon = document.getElementById('themeIcon');
+    const label = document.getElementById('themeLabel');
+    if (icon) icon.textContent = isLight ? '\u2600\uFE0F' : '\u263E';
+    if (label) label.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+}
+
+function toggleTheme() {
+    const isLight = document.body.classList.contains('light-mode');
+    const next = isLight ? 'dark' : 'light';
+    localStorage.setItem('theme', next);
+    applyTheme(next);
+}
+
+// Apply saved theme on load
+applyTheme(localStorage.getItem('theme') || 'dark');
 
 // ── Logout ────────────────────────────────────────────────────────────────────
 

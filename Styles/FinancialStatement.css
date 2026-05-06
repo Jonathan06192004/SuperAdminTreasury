@@ -4,14 +4,15 @@
 .fs-admin-main .dashboard-header { margin-bottom: 16px; flex-shrink: 0; }
 
 /* ── Tab Nav ─────────────────────────────────────────────────────────────── */
-.fs-tab-nav { display: flex; gap: 6px; flex-shrink: 0; margin-bottom: 12px; }
+.fs-tab-nav { display: flex; gap: 6px; flex-shrink: 0; margin-bottom: 0; }
 
 .fs-tab-btn {
     flex: 1;
     padding: 9px 6px;
     background: rgba(255,255,255,0.05);
     border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px;
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
     color: rgba(238,243,255,0.5);
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
@@ -47,8 +48,8 @@
     padding: 10px 14px 8px;
     background: linear-gradient(135deg, rgba(8,20,42,0.98), rgba(13,31,60,0.98));
     border: 1px solid rgba(64,166,255,0.25);
-    border-bottom: 2px solid #40a6ff;
-    border-radius: 10px 10px 0 0;
+    border-bottom: none;
+    border-radius: 0;
     flex-shrink: 0;
 }
 
@@ -148,38 +149,42 @@
 
 /* ── Column header bar ───────────────────────────────────────────────────── */
 .fs-col-header {
-    display: flex;
-    align-items: center;
+    display: table;
+    width: 100%;
     background: #0d1f3c;
     border-bottom: 2px solid #40a6ff;
     flex-shrink: 0;
-    padding: 0;
+    table-layout: fixed;
 }
 
 .fs-col-desc {
+    display: table-cell;
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-size: 0.68rem;
     letter-spacing: 2px;
     color: #40a6ff;
     padding: 8px 16px;
-    flex: 1;
+    width: auto;
 }
 
 .fs-col-label {
+    display: table-cell;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 0.68rem;
     letter-spacing: 1.5px;
     color: #40a6ff;
-    padding: 6px 16px;
+    padding: 6px 20px;
     text-align: center;
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    width: 160px;
+    vertical-align: middle;
     line-height: 1.2;
 }
+
+.fs-col-label-inner { display: flex; flex-direction: column; align-items: center; }
+
+.fs-col-inner { display: flex; flex-direction: column; align-items: center; }
 
 .fs-col-year { font-size: 1.3rem; font-weight: 900; letter-spacing: 2px; line-height: 1; }
 .fs-col-total { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; opacity: 0.85; }
@@ -203,13 +208,19 @@
     color: #1e293b;
     font-size: 0.78rem;
     border-radius: 0 0 8px 8px;
+    table-layout: fixed;
 }
 
+.fs-table col.col-desc { width: auto; }
+.fs-table col.col-amt  { width: 160px; }
+
 .fs-table td, .fs-table th {
-    padding: 6px 16px;
+    padding: 6px 20px 6px 16px;
     border-bottom: 1px solid #e8edf5;
     vertical-align: middle;
 }
+
+.fs-table td.fs-amount, .fs-table th.fs-th.center { width: 160px; min-width: 160px; }
 
 .fs-table tbody tr:nth-child(even) td { background: #f8faff; }
 .fs-table tbody tr:hover td { background: #eef2ff; transition: background 0.12s; }
@@ -247,7 +258,7 @@
 .fs-label.indent { padding-left: 28px !important; font-weight: 700; color: #334155; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.5px; }
 .fs-label.indent-sub { padding-left: 36px !important; font-weight: 500; color: #334155; }
 
-.fs-amount { text-align: right; font-weight: 600; color: #1e293b; white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 110px; }
+.fs-amount { text-align: right; font-weight: 600; color: #1e293b; white-space: nowrap; font-variant-numeric: tabular-nums; padding-right: 20px !important; }
 .fs-amount.center { text-align: right; }
 .fs-amount.neg { color: #dc2626; font-weight: 700; }
 .fs-amount.gold { color: #b45309; font-weight: 800; }
@@ -311,6 +322,31 @@
 .fl-month-val { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 900; color: #40a6ff; }
 .fl-month-label { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 700; color: rgba(64,166,255,0.85); margin-left: 4px; }
 .fl-pct-val { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 900; color: #40a6ff; }
+
+/* fl months row inside table */
+.fl-months-row td {
+    background: linear-gradient(90deg, #0d1f3c, #1a237e);
+    border-top: 2px solid #f5c800;
+    border-bottom: 2px solid #f5c800;
+    padding: 10px 16px;
+}
+.fl-months-row td.fs-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.7rem;
+    letter-spacing: 1.5px;
+    color: #f5c800;
+    text-transform: uppercase;
+}
+.fl-months-val {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 1.4rem;
+    color: #f5c800;
+    text-align: center;
+    letter-spacing: 1px;
+    padding-right: 20px !important;
+}
 
 /* ── KPI column ──────────────────────────────────────────────────────────── */
 .fs-kpi-col { width: 280px; flex-shrink: 0; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
@@ -508,3 +544,169 @@
 }
 .crud-status.success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); display: block; }
 .crud-status.error   { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3);  display: block; }
+
+/* ── Cash Note Modal ─────────────────────────────────────────────────────── */
+.cash-note-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 302;
+    width: 780px;
+    max-width: 96vw;
+    max-height: 88vh;
+    background: #0d1f3c;
+    border: 1px solid rgba(64,166,255,0.4);
+    border-radius: 10px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.65), 0 0 0 1px rgba(64,166,255,0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: crudIn 0.22s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.cash-note-modal.hidden { display: none; }
+
+.cash-note-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px;
+    background: linear-gradient(135deg, #0d1f3c, #1a237e);
+    border-bottom: 2px solid #40a6ff;
+    flex-shrink: 0;
+}
+
+.cash-note-title {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 0.88rem;
+    letter-spacing: 1.5px;
+    color: #40a6ff;
+    text-transform: uppercase;
+}
+
+.cash-note-close {
+    background: rgba(64,166,255,0.15);
+    border: 1px solid rgba(64,166,255,0.4);
+    border-radius: 50%;
+    color: #40a6ff;
+    font-size: 0.85rem;
+    font-weight: 900;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+    flex-shrink: 0;
+}
+.cash-note-close:hover { background: rgba(64,166,255,0.35); }
+
+.cash-note-col-header {
+    display: flex;
+    background: rgba(13,31,60,0.95);
+    flex-shrink: 0;
+    border-bottom: 2px solid #40a6ff;
+}
+
+.cash-note-col-desc { flex: 1; padding: 10px 20px; }
+
+.cash-note-col-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    color: #40a6ff;
+    padding: 10px 20px;
+    text-align: right;
+    min-width: 160px;
+}
+
+.cash-note-body-wrap { overflow-y: auto; flex: 1; }
+
+.cash-note-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #0d1f3c;
+    color: #eef3ff;
+    font-size: 0.82rem;
+}
+
+.cash-note-table td { padding: 9px 20px; border-bottom: 1px solid rgba(64,166,255,0.12); vertical-align: middle; }
+.cash-note-table tbody tr:nth-child(even) td { background: rgba(64,166,255,0.05); }
+.cash-note-table tbody tr:hover td { background: rgba(64,166,255,0.12); }
+
+.cn-label { color: #eef3ff; font-weight: 500; }
+.cn-label-indent { padding-left: 32px !important; }
+.cn-label-bold { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 0.8rem; letter-spacing: 0.3px; color: #7ec8ff; text-transform: uppercase; }
+
+.cn-amount { text-align: right; font-weight: 600; color: #eef3ff; white-space: nowrap; font-variant-numeric: tabular-nums; min-width: 140px; }
+.cn-amount-bold { font-family: 'Montserrat', sans-serif; font-weight: 800; font-size: 0.82rem; color: #40a6ff; }
+.cn-neg { color: #f87171 !important; }
+
+.cn-subtotal-row td {
+    background: rgba(64,166,255,0.15) !important;
+    border-top: 2px solid #40a6ff;
+    border-bottom: 2px solid #40a6ff;
+}
+
+/* ── AR Note: group rows ─────────────────────────────────────────────────── */
+.cn-group-row td { background: rgba(13,31,60,0.6) !important; padding: 10px 20px 4px !important; border-bottom: none !important; }
+.cn-group-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 900;
+    font-size: 0.78rem;
+    letter-spacing: 0.5px;
+    color: #7ec8ff;
+    text-transform: uppercase;
+}
+
+/* SDA clickable dot inside AR note */
+.cn-sda-dot {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    background: #40a6ff;
+    border-radius: 50%;
+    color: #0d1f3c;
+    font-size: 0.6rem;
+    font-weight: 900;
+    margin-left: 6px;
+    cursor: pointer;
+    vertical-align: middle;
+    transition: background 0.15s;
+}
+.cn-sda-dot:hover { background: #7ec8ff; }
+
+/* ── AR SDA drill-down modal ─────────────────────────────────────────────── */
+.ar-sda-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 304;
+    width: 640px;
+    max-width: 96vw;
+    max-height: 82vh;
+    background: #0d1f3c;
+    border: 1px solid rgba(64,166,255,0.4);
+    border-radius: 10px;
+    box-shadow: 0 28px 72px rgba(0,0,0,0.75), 0 0 0 1px rgba(64,166,255,0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: crudIn 0.2s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.ar-sda-modal.hidden { display: none; }
+
+.ar-sda-subtitle {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 1.5px;
+    color: rgba(64,166,255,0.7);
+    text-transform: uppercase;
+}
