@@ -268,6 +268,78 @@
         </main>
     </div>
 
+    <!-- CRUD Modal -->
+    <div class="crud-overlay hidden" id="crudOverlay" onclick="closeCrud()"></div>
+    <div class="crud-modal hidden" id="crudModal">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title" id="crudModalTitle">EDIT RECORD</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-danger" id="crudDeleteBtn" onclick="crudDelete()">DELETE</button>
+                <button class="crud-btn crud-btn-primary" onclick="crudSave()">SAVE</button>
+                <button class="crud-btn crud-btn-ghost" onclick="closeCrud()">CANCEL</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="crudYear">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="crudMonth">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                <div class="crud-field" id="crudRecordIdWrap" style="display:none">
+                    <label class="crud-label">RECORD ID</label>
+                    <input class="crud-input" id="crudRecordId" readonly style="opacity:0.5;cursor:not-allowed;" />
+                </div>
+            </div>
+            <div class="crud-fields-grid" id="crudFieldsGrid"></div>
+        </div>
+    </div>
+
+    <!-- IS Budget Modal -->
+    <div class="crud-modal hidden" id="budgetModal" style="width:520px;">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">EDIT BUDGET</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-primary" onclick="budgetSave()">SAVE</button>
+                <button class="crud-btn crud-btn-ghost" onclick="closeBudget()">CANCEL</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="budgetYear">
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">LINE KEY</label>
+                    <input class="crud-input" id="budgetLineKey" readonly style="opacity:0.5;" />
+                </div>
+            </div>
+            <div class="crud-field" style="margin-top:12px;">
+                <label class="crud-label">BUDGET AMOUNT</label>
+                <input class="crud-input" id="budgetAmount" type="number" step="0.01" placeholder="0.00" />
+            </div>
+            <input type="hidden" id="budgetLineId" />
+            <input type="hidden" id="budgetExistingId" />
+        </div>
+    </div>
+
     <script src="../Script/auth.js"></script>
     <script src="../Script/FinancialStatement.js"></script>
 </body>
