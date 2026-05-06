@@ -156,7 +156,7 @@ function renderTable() {
         const pwId = 'pw-' + u.id;
         tr.innerHTML = `
             <td class="name-cell">${u.full_name}</td>
-            <td class="username-cell">@${u.username}</td>
+            <td class="username-cell">${u.username}</td>
             <td class="pw-cell">
                 <div class="pw-display">
                     <span class="pw-text" id="${pwId}" data-pw="${u.plain_password ?? ''}">${u.plain_password ? '•'.repeat(Math.min(u.plain_password.length, 10)) : '—'}</span>
@@ -279,7 +279,7 @@ function openResetModal(id) {
     resetTargetId = id;
     document.getElementById('reset-modal-title').textContent = 'Reset Password';
     document.getElementById('reset-info').textContent =
-        'Resetting password for: ' + u.full_name + ' (@' + u.username + ')';
+        'Resetting password for: ' + u.full_name + ' (' + u.username + ')';
     document.getElementById('r-password').value = '';
     document.getElementById('r-confirm').value = '';
     document.getElementById('reset-error').textContent = '';

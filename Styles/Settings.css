@@ -31,7 +31,9 @@ body {
 
 .brand span { color: rgba(255,255,255,0.5); font-size: 0.85rem; }
 
-.sidebar-nav { margin-top: 36px; display: flex; flex-direction: column; gap: 6px; }
+.sidebar-nav { margin-top: 36px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+
+.sidebar-nav-bottom { margin-top: auto; flex: 0; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.07); }
 
 .sidebar-nav a {
     color: rgba(255,255,255,0.6);

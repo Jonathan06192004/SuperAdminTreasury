@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Financial Statement</title>
+    <link rel="stylesheet" href="../Styles/Dashboard.css" />
+    <link rel="stylesheet" href="../Styles/FinancialStatement.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar">
+            <div class="brand">
+                <h2>SuperAdmin</h2>
+                <span>Treasury</span>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Users.html">Users</a>
+                <a href="FinancialStatement.html" class="active">Financial Statement</a>
+                <a href="Update.html">Update</a>
+            </nav>
+            <nav class="sidebar-nav sidebar-nav-bottom">
+                <a href="Settings.html">Settings</a>
+            </nav>
+        </aside>
+
+        <main class="dashboard-main fs-admin-main">
+            <header class="dashboard-header">
+                <div>
+                    <h1>Financial Statement</h1>
+                    <p>Southwestern Philippines Union Conference</p>
+                </div>
+            </header>
+
+            <!-- Tab Nav -->
+            <div class="fs-tab-nav">
+                <button class="fs-tab-btn active" onclick="switchTab('balance', this)">BALANCE SHEET</button>
+                <button class="fs-tab-btn" onclick="switchTab('income', this)">INCOME STATEMENT</button>
+                <button class="fs-tab-btn" onclick="switchTab('cashflow', this)">CASH FLOW</button>
+                <button class="fs-tab-btn" onclick="switchTab('equity', this)">FINANCIAL INDICATOR</button>
+            </div>
+
+            <div class="fs-body-wrap">
+
+                <!-- LEFT: panels -->
+                <div class="fs-panels">
+
+                    <!-- BALANCE SHEET -->
+                    <div class="fs-panel active" id="tab-balance">
+                        <div class="fs-panel-header">
+                            <div class="fs-panel-header-left">
+                                <span class="fs-panel-title">FINANCIAL POSITION</span>
+                                <span class="fs-panel-period" id="bsPeriodLabel">JANUARY 2026</span>
+                            </div>
+                            <div class="fs-panel-controls">
+                                <select class="fs-month-select" id="bsMonthSelect" onchange="renderAll(parseInt(this.value))">
+                                    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                                </select>
+                                <div class="fs-zoom-wrap">
+                                    <button class="fs-zoom-btn" onclick="bsZoom(-1)">&#8722;</button>
+                                    <span class="fs-zoom-label" id="bsZoomLabel">100%</span>
+                                    <button class="fs-zoom-btn" onclick="bsZoom(1)">&#43;</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fs-col-header" id="bsColHeader">
+                            <span class="fs-col-desc"></span>
+                            <span class="fs-col-label"><span class="fs-col-year" id="bsColYear1">2025</span><span class="fs-col-total">TOTAL</span></span>
+                            <span class="fs-col-label"><span class="fs-col-year" id="bsColYear2">2026</span><span class="fs-col-total">TOTAL</span></span>
+                        </div>
+                        <div class="fs-zoom-outer">
+                            <div class="fs-table-scroll" id="bsTableScroll">
+                                <table class="fs-table" id="bsTable">
+                                    <tbody id="bsTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INCOME STATEMENT -->
+                    <div class="fs-panel" id="tab-income">
+                        <div class="fs-panel-header">
+                            <div class="fs-panel-header-left">
+                                <span class="fs-panel-title">FINANCIAL ACTIVITY</span>
+                                <span class="fs-panel-period" id="isPeriodLabel">JANUARY 2026</span>
+                            </div>
+                            <div class="fs-panel-controls">
+                                <select class="fs-month-select" id="isMonthSelect" onchange="renderAll(parseInt(this.value))">
+                                    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                                </select>
+                                <div class="fs-zoom-wrap">
+                                    <button class="fs-zoom-btn" onclick="isZoom(-1)">&#8722;</button>
+                                    <span class="fs-zoom-label" id="isZoomLabel">100%</span>
+                                    <button class="fs-zoom-btn" onclick="isZoom(1)">&#43;</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fs-col-header" id="isColHeader">
+                            <span class="fs-col-desc"></span>
+                            <span class="fs-col-label"><span class="fs-col-year" id="isColYear1">2026</span><span class="fs-col-total">TOTAL</span></span>
+                            <span class="fs-col-label"><span class="fs-col-year" id="isColYear2">2026</span><span class="fs-col-total">BUDGET</span></span>
+                            <span class="fs-col-label"><span class="fs-col-year" id="isColYear3">2025</span><span class="fs-col-total">TOTAL</span></span>
+                        </div>
+                        <div class="fs-zoom-outer">
+                            <div class="fs-table-scroll" id="isTableScroll">
+                                <table class="fs-table" id="isTable">
+                                    <thead class="fs-thead-hidden">
+                                        <tr>
+                                            <th class="fs-th">OPERATING ACTIVITY</th>
+                                            <th class="fs-th center" id="isThYear1">TOTAL 2026</th>
+                                            <th class="fs-th center" id="isThYear2">BUDGET 2026</th>
+                                            <th class="fs-th center" id="isThYear3">TOTAL 2025</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="isTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CASH FLOW -->
+                    <div class="fs-panel" id="tab-cashflow">
+                        <div class="fs-panel-header">
+                            <div class="fs-panel-header-left">
+                                <span class="fs-panel-title">STATEMENT OF CASH FLOWS</span>
+                                <span class="fs-panel-period" id="cfPeriodLabel">JANUARY 2026</span>
+                            </div>
+                            <div class="fs-panel-controls">
+                                <select class="fs-month-select" id="cfMonthSelect" onchange="renderAll(parseInt(this.value))">
+                                    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                                </select>
+                                <div class="fs-zoom-wrap">
+                                    <button class="fs-zoom-btn" onclick="cfZoom(-1)">&#8722;</button>
+                                    <span class="fs-zoom-label" id="cfZoomLabel">100%</span>
+                                    <button class="fs-zoom-btn" onclick="cfZoom(1)">&#43;</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fs-zoom-outer">
+                            <div class="fs-table-scroll" id="cfTableScroll">
+                                <table class="fs-table" id="cfTable">
+                                    <thead><tr><th class="fs-th">ACTIVITIES</th><th class="fs-th center">AMOUNT</th></tr></thead>
+                                    <tbody id="cfTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- FINANCIAL INDICATOR -->
+                    <div class="fs-panel" id="tab-equity">
+                        <div class="fs-panel-header">
+                            <div class="fs-panel-header-left">
+                                <span class="fs-panel-title">WORKING CAPITAL &amp; LIQUIDITY</span>
+                                <span class="fs-panel-period" id="flPeriodLabel">JANUARY 2026</span>
+                            </div>
+                            <div class="fs-panel-controls">
+                                <button class="fs-pct-btn" id="flPctBtn" onclick="toggleFlMode()">&#37; SEE PERCENTAGE</button>
+                                <select class="fs-month-select" id="flMonthSelect" onchange="renderAll(parseInt(this.value))">
+                                    <option value="0">January</option><option value="1">February</option><option value="2">March</option>
+                                    <option value="3">April</option><option value="4">May</option><option value="5">June</option>
+                                    <option value="6">July</option><option value="7">August</option><option value="8">September</option>
+                                    <option value="9">October</option><option value="10">November</option><option value="11">December</option>
+                                </select>
+                                <div class="fs-zoom-wrap">
+                                    <button class="fs-zoom-btn" onclick="flZoom(-1)">&#8722;</button>
+                                    <span class="fs-zoom-label" id="flZoomLabel">100%</span>
+                                    <button class="fs-zoom-btn" onclick="flZoom(1)">&#43;</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="fs-col-header" id="flColHeader">
+                            <span class="fs-col-desc"></span>
+                            <span class="fs-col-label"><span class="fs-col-year" id="flColYear1">2026</span><span class="fs-col-total">CURRENT</span></span>
+                            <span class="fs-col-label"><span class="fs-col-year" id="flColYear2">2025</span><span class="fs-col-total">PREVIOUS</span></span>
+                        </div>
+                        <div class="fs-zoom-outer">
+                            <div class="fs-table-scroll" id="flTableScroll">
+                                <table class="fs-table" id="flTable">
+                                    <thead class="fs-thead-hidden">
+                                        <tr>
+                                            <th class="fs-th"></th>
+                                            <th class="fs-th center">2026 CURRENT</th>
+                                            <th class="fs-th center">2025 PREVIOUS</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="flTableBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                </div><!-- /fs-panels -->
+
+                <!-- RIGHT: KPI cards -->
+                <div class="fs-kpi-col">
+
+                    <div class="kpi-cards" id="kpiCardsBalance">
+                        <div class="kpi-card kpi-blue">
+                            <p class="kpi-label">TOTAL ASSETS</p>
+                            <p class="kpi-value" id="kpiBsAssets">—</p>
+                            <p class="kpi-sub" id="kpiBsAssetsSub">—</p>
+                        </div>
+                        <div class="kpi-card kpi-red">
+                            <p class="kpi-label">TOTAL LIABILITIES</p>
+                            <p class="kpi-value" id="kpiBsLiabilities">—</p>
+                            <p class="kpi-sub" id="kpiBsLiabilitiesSub">—</p>
+                        </div>
+                        <div class="kpi-card kpi-green">
+                            <p class="kpi-label">TOTAL NET ASSETS</p>
+                            <p class="kpi-value" id="kpiBsNetAssets">—</p>
+                            <p class="kpi-sub" id="kpiBsNetAssetsSub">—</p>
+                        </div>
+                        <div class="kpi-card kpi-gold">
+                            <p class="kpi-label">TOTAL LIABILITIES AND NET ASSETS</p>
+                            <p class="kpi-value" id="kpiBsTotal">—</p>
+                            <p class="kpi-sub" id="kpiBsTotalSub">—</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-cards hidden" id="kpiCardsIncome">
+                        <div class="kpi-card kpi-green">
+                            <p class="kpi-label">TOTAL EARNED OPERATING INCOME</p>
+                            <p class="kpi-value" id="kpiRevenue">—</p>
+                            <p class="kpi-sub" id="kpiRevenueSub">—</p>
+                        </div>
+                        <div class="kpi-card kpi-red">
+                            <p class="kpi-label">TOTAL OPERATING EXPENSES</p>
+                            <p class="kpi-value" id="kpiExpenses">—</p>
+                            <p class="kpi-sub" id="kpiExpensesSub">—</p>
+                        </div>
+                        <div class="kpi-card kpi-gold">
+                            <p class="kpi-label">CAPITAL ACTIVITY</p>
+                            <p class="kpi-value" id="kpiCapital">—</p>
+                            <p class="kpi-sub" id="kpiCapitalSub">—</p>
+                        </div>
+                        <div class="kpi-card kpi-blue">
+                            <p class="kpi-label">NET ASSETS</p>
+                            <p class="kpi-value" id="kpiNetAssets">—</p>
+                            <p class="kpi-sub" id="kpiNetAssetsSub">—</p>
+                        </div>
+                    </div>
+
+                    <div class="kpi-cards hidden" id="kpiCardsEquity">
+                        <div class="kpi-card kpi-gold kpi-tall">
+                            <p class="kpi-label">AVAILABLE WORKING CAPITAL IN MONTHS</p>
+                            <p class="kpi-value" id="kpiWcMonths">—</p>
+                        </div>
+                        <div class="kpi-card kpi-blue kpi-tall">
+                            <p class="kpi-label">AVAILABLE LIQUID ASSETS IN MONTHS</p>
+                            <p class="kpi-value" id="kpiLaMonths">—</p>
+                        </div>
+                    </div>
+
+                </div><!-- /fs-kpi-col -->
+
+            </div><!-- /fs-body-wrap -->
+        </main>
+    </div>
+
+    <script src="../Script/auth.js"></script>
+    <script src="../Script/FinancialStatement.js"></script>
+</body>
+</html>
