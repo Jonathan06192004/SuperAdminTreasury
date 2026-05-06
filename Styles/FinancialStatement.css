@@ -151,8 +151,9 @@
 .fs-col-header {
     display: table;
     width: 100%;
-    background: #0d1f3c;
-    border-bottom: 2px solid #40a6ff;
+    background: #ffffff;
+    border-bottom: 2px solid #1e3a8a;
+    border-top: 1px solid #dde4f0;
     flex-shrink: 0;
     table-layout: fixed;
 }
@@ -163,31 +164,32 @@
     font-weight: 900;
     font-size: 0.68rem;
     letter-spacing: 2px;
-    color: #40a6ff;
-    padding: 8px 16px;
+    color: #0f172a;
+    padding: 10px 18px;
     width: auto;
 }
 
 .fs-col-label {
     display: table-cell;
     font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
+    font-weight: 900;
     font-size: 0.68rem;
     letter-spacing: 1.5px;
-    color: #40a6ff;
-    padding: 6px 20px;
+    color: #0f172a;
+    padding: 8px 20px;
     text-align: center;
-    width: 160px;
+    width: 170px;
     vertical-align: middle;
     line-height: 1.2;
+    border-left: 1px solid #dde4f0;
 }
 
 .fs-col-label-inner { display: flex; flex-direction: column; align-items: center; }
 
-.fs-col-inner { display: flex; flex-direction: column; align-items: center; }
+.fs-col-inner { display: flex; flex-direction: column; align-items: center; gap: 2px; }
 
-.fs-col-year { font-size: 1.3rem; font-weight: 900; letter-spacing: 2px; line-height: 1; }
-.fs-col-total { font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; opacity: 0.85; }
+.fs-col-year { font-size: 1.4rem; font-weight: 900; letter-spacing: 2px; line-height: 1; color: #0f172a; }
+.fs-col-total { font-size: 0.58rem; font-weight: 800; letter-spacing: 2.5px; color: #0f172a; text-transform: uppercase; }
 
 /* ── Zoom outer / table scroll ───────────────────────────────────────────── */
 .fs-zoom-outer { flex: 1; overflow-y: auto; overflow-x: auto; min-height: 0; position: relative; }
@@ -206,115 +208,144 @@
     border-collapse: collapse;
     background: #fff;
     color: #1e293b;
-    font-size: 0.78rem;
+    font-size: 0.79rem;
     border-radius: 0 0 8px 8px;
     table-layout: fixed;
 }
 
 .fs-table col.col-desc { width: auto; }
-.fs-table col.col-amt  { width: 160px; }
+.fs-table col.col-amt  { width: 170px; }
 
 .fs-table td, .fs-table th {
-    padding: 6px 20px 6px 16px;
-    border-bottom: 1px solid #e8edf5;
+    padding: 7px 22px 7px 16px;
+    border-bottom: 1px solid #e2e8f4;
     vertical-align: middle;
 }
 
-.fs-table td.fs-amount, .fs-table th.fs-th.center { width: 160px; min-width: 160px; }
+.fs-table td.fs-amount, .fs-table th.fs-th.center { width: 170px; min-width: 170px; }
 
-.fs-table tbody tr:nth-child(even) td { background: #f8faff; }
-.fs-table tbody tr:hover td { background: #eef2ff; transition: background 0.12s; }
+/* Alternating rows — subtle blue-tinted stripe */
+.fs-table tbody tr:nth-child(even) td { background: #f4f7fd; }
+.fs-table tbody tr:hover td { background: #e6eeff; transition: background 0.12s; }
+
+/* Amount column separator */
+.fs-table td.fs-amount { border-left: 1px solid #dde4f0; }
 
 .fs-th {
-    background: linear-gradient(135deg, #0d1f3c, #1a237e);
-    color: #40a6ff;
+    background: #ffffff;
+    color: #0f172a;
     font-family: 'Montserrat', sans-serif;
-    font-weight: 700;
+    font-weight: 900;
     font-size: 0.65rem;
     letter-spacing: 1px;
-    padding: 9px 16px;
+    padding: 10px 18px;
     text-align: left;
-    border-bottom: 2px solid #40a6ff;
+    border-bottom: 2px solid #1e3a8a;
     white-space: nowrap;
 }
 
 .fs-th.center { text-align: right; }
 
+/* ── Table text: 3-color system ─────────────────────────────────────────────
+   #0f172a  near-black  → all labels & amounts on white/light rows
+   #1e3a8a  dark navy   → subtotal rows (blue-tinted background)
+   #ffffff  white       → section headers & total rows (dark background)
+   #c0392b  dark red    → negative amounts only
+────────────────────────────────────────────────────────────────────────── */
+
+/* Section headers — white background, black bold text */
 .section-header td {
-    background: linear-gradient(90deg, rgba(13,31,60,0.92), rgba(26,35,126,0.85));
+    background: #ffffff;
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
-    font-size: 0.67rem;
-    letter-spacing: 2.5px;
-    color: #7ec8ff;
-    padding: 8px 16px;
-    border-left: 4px solid #40a6ff;
-    border-top: 2px solid rgba(64,166,255,0.4);
-    border-bottom: 1px solid rgba(64,166,255,0.25);
+    font-size: 0.72rem;
+    letter-spacing: 2px;
+    color: #0f172a;
+    padding: 10px 18px;
+    border-left: 4px solid #1e3a8a;
+    border-top: 2px solid #1e3a8a;
+    border-bottom: 2px solid #1e3a8a;
     text-transform: uppercase;
 }
 
-.fs-label { color: #1e293b; font-weight: 500; }
-.fs-label.indent { padding-left: 28px !important; font-weight: 700; color: #334155; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.5px; }
-.fs-label.indent-sub { padding-left: 36px !important; font-weight: 500; color: #334155; }
+/* Row labels */
+.fs-label                { color: #0f172a; font-weight: 500; }
+.fs-label.indent         { padding-left: 30px !important; font-weight: 700; color: #0f172a; text-transform: uppercase; font-size: 0.68rem; letter-spacing: 0.5px; }
+.fs-label.indent-sub     { padding-left: 42px !important; font-weight: 400; color: #0f172a; }
 
-.fs-amount { text-align: right; font-weight: 600; color: #1e293b; white-space: nowrap; font-variant-numeric: tabular-nums; padding-right: 20px !important; }
+/* Amount cells */
+.fs-amount {
+    text-align: right;
+    font-weight: 600;
+    color: #0f172a;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    padding-right: 22px !important;
+    letter-spacing: 0.2px;
+}
 .fs-amount.center { text-align: right; }
-.fs-amount.neg { color: #dc2626; font-weight: 700; }
-.fs-amount.gold { color: #b45309; font-weight: 800; }
+.fs-amount.neg    { color: #c0392b; font-weight: 700; }
+.fs-amount.gold   { color: #0f172a; font-weight: 800; }
 
+/* Subtotal rows — blue-tinted band */
 .subtotal-row td {
-    background: #e8f0fe;
+    background: #dbeafe;
     font-weight: 700;
-    border-top: 1px solid #bfdbfe;
-    border-bottom: 1px solid #bfdbfe;
-    color: #1a237e;
-    font-size: 0.76rem;
+    border-top: 1px solid #93c5fd;
+    border-bottom: 1px solid #93c5fd;
+    color: #1e3a8a;
+    font-size: 0.77rem;
     letter-spacing: 0.3px;
 }
+.subtotal-row td.fs-label          { color: #1e3a8a; }
+.subtotal-row td.fs-amount         { border-left: 1px solid #93c5fd; color: #1e3a8a; }
+.subtotal-row td.fs-amount.neg     { color: #c0392b; }
 
+/* Grand total rows */
 .total-row.highlight td {
-    background: linear-gradient(90deg, #0d1f3c, #1a237e);
+    background: #dbeafe;
     font-weight: 800;
-    font-size: 0.77rem;
-    border-top: 2px solid #40a6ff;
-    border-bottom: 2px solid #40a6ff;
-    color: #40a6ff;
+    font-size: 0.78rem;
+    border-top: 2px solid #1e3a8a;
+    border-bottom: 2px solid #1e3a8a;
+    color: #0f172a;
     letter-spacing: 0.5px;
 }
-
-.total-row.highlight .fs-amount.gold { color: #7ec8ff; font-size: 0.79rem; }
+.total-row.highlight td.fs-label       { color: #0f172a; font-weight: 800; }
+.total-row.highlight td.fs-amount      { border-left: 1px solid #93c5fd; color: #0f172a; font-weight: 800; }
+.total-row.highlight .fs-amount.gold   { color: #0f172a; font-size: 0.8rem; font-weight: 800; }
+.total-row.highlight .fs-amount.neg    { color: #c0392b; font-weight: 800; }
 
 .income-highlight-row td {
-    background: linear-gradient(90deg, rgba(64,166,255,0.22), rgba(64,166,255,0.08));
-    color: #0d1f3c;
+    background: linear-gradient(90deg, #dbeafe, #eff6ff);
+    color: #1e3a8a;
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-size: 0.74rem;
     letter-spacing: 1px;
     border-top: 2px solid #93c5fd;
     border-bottom: 1px solid #93c5fd;
-    padding: 8px 14px;
+    padding: 8px 16px;
     text-transform: uppercase;
 }
 
 .income-budget-row td {
-    background: #eff6ff;
+    background: #f0f7ff;
     color: #1e40af;
     font-family: 'Montserrat', sans-serif;
     font-weight: 700;
     font-size: 0.71rem;
     border-top: 1px solid #bfdbfe;
     border-bottom: 1px solid #bfdbfe;
-    padding: 6px 14px;
+    padding: 6px 16px;
     text-transform: uppercase;
 }
 
-.spacer td { height: 8px; background: #f8faff !important; border: none !important; }
+.spacer td { height: 6px; background: #f0f4fb !important; border: none !important; }
 
 /* drilldown */
 .bs-drilldown-row { cursor: pointer; transition: background 0.15s; }
-.bs-drilldown-row:hover td { background: #dbeafe !important; color: #0d1f3c !important; }
+.bs-drilldown-row:hover td { background: #c7d9f8 !important; color: #0d1f3c !important; }
 .drill-icon { font-size: 0.55rem; color: #40a6ff; margin-left: 6px; vertical-align: middle; opacity: 0.8; transition: transform 0.2s; }
 .bs-drilldown-row:hover .drill-icon { transform: translateX(3px); opacity: 1; }
 
@@ -323,11 +354,11 @@
 .fl-month-label { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 700; color: rgba(64,166,255,0.85); margin-left: 4px; }
 .fl-pct-val { font-family: 'Montserrat', sans-serif; font-size: 1.6rem; font-weight: 900; color: #40a6ff; }
 
-/* fl months row inside table */
+/* fl months row — solid dark navy, same style as total-row */
 .fl-months-row td {
-    background: linear-gradient(90deg, #0d1f3c, #1a237e);
-    border-top: 2px solid #f5c800;
-    border-bottom: 2px solid #f5c800;
+    background: #1e3a8a !important;
+    border-top: 2px solid #1e3a8a;
+    border-bottom: 2px solid #1e3a8a;
     padding: 10px 16px;
 }
 .fl-months-row td.fs-label {
@@ -335,14 +366,14 @@
     font-weight: 800;
     font-size: 0.7rem;
     letter-spacing: 1.5px;
-    color: #f5c800;
+    color: #ffffff !important;
     text-transform: uppercase;
 }
 .fl-months-val {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
     font-size: 1.4rem;
-    color: #f5c800;
+    color: #ffffff !important;
     text-align: center;
     letter-spacing: 1px;
     padding-right: 20px !important;
