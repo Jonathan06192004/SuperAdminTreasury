@@ -124,4 +124,11 @@ function renderActiveUsers(users) {
     area.appendChild(list);
 }
 
+// Apply saved theme
+(function() {
+    const t = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light-mode', t === 'light');
+    document.body.classList.toggle('dark-mode', t === 'dark');
+})();
+
 loadDashboard();

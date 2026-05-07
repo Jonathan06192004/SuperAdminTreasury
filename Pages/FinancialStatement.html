@@ -54,6 +54,15 @@
                                 <span class="fs-panel-period" id="bsPeriodLabel">JANUARY 2026</span>
                             </div>
                             <div class="fs-panel-controls">
+                                <div class="bs-edit-dropdown" id="bsEditDropdown">
+                                    <button class="crud-add-btn" onclick="toggleBsDropdown()">&#9998; EDIT / ADD &#9660;</button>
+                                    <div class="bs-edit-menu hidden" id="bsEditMenu">
+                                        <button onclick="bsCrudOpen();closeBsDropdown()">Balance Sheet</button>
+                                        <button onclick="openCashNoteCrud();closeBsDropdown()">Cash &amp; Cash Equivalents</button>
+                                        <button onclick="openArNoteCrud();closeBsDropdown()">Accounts Receivable</button>
+                                        <button onclick="openApNoteCrud();closeBsDropdown()">Accounts Payable</button>
+                                    </div>
+                                </div>
                                 <select class="fs-month-select" id="bsMonthSelect" onchange="renderAll(parseInt(this.value))">
                                     <option value="0">January</option><option value="1">February</option><option value="2">March</option>
                                     <option value="3">April</option><option value="4">May</option><option value="5">June</option>
@@ -285,7 +294,7 @@
             <div class="crud-meta-row">
                 <div class="crud-field">
                     <label class="crud-label">YEAR</label>
-                    <select class="crud-input" id="crudYear">
+                    <select class="crud-input" id="crudYear" onchange="bsCrudLoad()">
                         <option value="2025">2025</option>
                         <option value="2026" selected>2026</option>
                         <option value="2027">2027</option>
@@ -293,7 +302,7 @@
                 </div>
                 <div class="crud-field">
                     <label class="crud-label">MONTH</label>
-                    <select class="crud-input" id="crudMonth">
+                    <select class="crud-input" id="crudMonth" onchange="bsCrudLoad()">
                         <option value="1">January</option><option value="2">February</option><option value="3">March</option>
                         <option value="4">April</option><option value="5">May</option><option value="6">June</option>
                         <option value="7">July</option><option value="8">August</option><option value="9">September</option>
@@ -435,6 +444,159 @@
             <table class="cash-note-table">
                 <tbody id="apSdaBody"></tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Cash Note CRUD Modal -->
+    <div class="crud-overlay hidden" id="cashCrudOverlay" onclick="closeCashNoteCrud()"></div>
+    <div class="crud-modal hidden" id="cashCrudModal" style="width:760px;">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">EDIT / ADD &ndash; CASH &amp; CASH EQUIVALENTS</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-ghost" onclick="closeCashNoteCrud()">CLOSE</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="cashCrudYear" onchange="cashNoteCrudLoad()"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="cashCrudMonth" onchange="cashNoteCrudLoad()">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                <div class="crud-field" style="flex:0;align-self:flex-end;">
+                    <button class="crud-btn crud-btn-primary" onclick="cashNoteCrudAddNew()">&#43; ADD ROW</button>
+                </div>
+            </div>
+            <div id="cashCrudRowList" class="note-row-list"></div>
+        </div>
+    </div>
+
+    <!-- AR Note CRUD Modal -->
+    <div class="crud-overlay hidden" id="arCrudOverlay" onclick="closeArNoteCrud()"></div>
+    <div class="crud-modal hidden" id="arCrudModal" style="width:760px;">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">EDIT / ADD &ndash; ACCOUNTS RECEIVABLE</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-ghost" onclick="closeArNoteCrud()">CLOSE</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="arCrudYear" onchange="arNoteCrudLoad()"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="arCrudMonth" onchange="arNoteCrudLoad()">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                <div class="crud-field" style="flex:0;align-self:flex-end;">
+                    <button class="crud-btn crud-btn-primary" onclick="arNoteCrudAddNew()">&#43; ADD ROW</button>
+                </div>
+            </div>
+            <div id="arCrudRowList" class="note-row-list"></div>
+            <div style="margin-top:14px;border-top:1px solid rgba(64,166,255,0.2);padding-top:12px;">
+                <span style="font-family:Montserrat,sans-serif;font-weight:800;font-size:0.65rem;letter-spacing:1.5px;color:#40a6ff;">SDA ENTITIES</span>
+                <button class="crud-add-btn" style="margin-left:10px;" onclick="openArSdaCrud()">&#9998; EDIT SDA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AR SDA CRUD Modal -->
+    <div class="crud-overlay hidden" id="arSdaCrudOverlay" onclick="closeArSdaCrud()"></div>
+    <div class="crud-modal hidden" id="arSdaCrudModal" style="width:620px;">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">EDIT / ADD &ndash; AR SDA ENTITIES</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-ghost" onclick="closeArSdaCrud()">CLOSE</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="arSdaCrudYear" onchange="arSdaCrudLoad()"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="arSdaCrudMonth" onchange="arSdaCrudLoad()">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                <div class="crud-field" style="flex:0;align-self:flex-end;">
+                    <button class="crud-btn crud-btn-primary" onclick="arSdaCrudAddNew()">&#43; ADD ENTITY</button>
+                </div>
+            </div>
+            <div id="arSdaCrudRowList" class="note-row-list"></div>
+        </div>
+    </div>
+
+    <!-- AP Note CRUD Modal -->
+    <div class="crud-overlay hidden" id="apCrudOverlay" onclick="closeApNoteCrud()"></div>
+    <div class="crud-modal hidden" id="apCrudModal" style="width:760px;">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">EDIT / ADD &ndash; ACCOUNTS PAYABLE</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-ghost" onclick="closeApNoteCrud()">CLOSE</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="apCrudYear" onchange="apNoteCrudLoad()"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="apCrudMonth" onchange="apNoteCrudLoad()">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                <div class="crud-field" style="flex:0;align-self:flex-end;">
+                    <button class="crud-btn crud-btn-primary" onclick="apNoteCrudAddNew()">&#43; ADD ROW</button>
+                </div>
+            </div>
+            <div id="apCrudRowList" class="note-row-list"></div>
+            <div style="margin-top:14px;border-top:1px solid rgba(64,166,255,0.2);padding-top:12px;">
+                <span style="font-family:Montserrat,sans-serif;font-weight:800;font-size:0.65rem;letter-spacing:1.5px;color:#40a6ff;">SDA ENTITIES</span>
+                <button class="crud-add-btn" style="margin-left:10px;" onclick="openApSdaCrud()">&#9998; EDIT SDA</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- AP SDA CRUD Modal -->
+    <div class="crud-overlay hidden" id="apSdaCrudOverlay" onclick="closeApSdaCrud()"></div>
+    <div class="crud-modal hidden" id="apSdaCrudModal" style="width:680px;">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">EDIT / ADD &ndash; AP SDA ENTITIES</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-ghost" onclick="closeApSdaCrud()">CLOSE</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="apSdaCrudYear" onchange="apSdaCrudLoad()"><option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option></select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="apSdaCrudMonth" onchange="apSdaCrudLoad()">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                <div class="crud-field" style="flex:0;align-self:flex-end;">
+                    <button class="crud-btn crud-btn-primary" onclick="apSdaCrudAddNew()">&#43; ADD ENTITY</button>
+                </div>
+            </div>
+            <div id="apSdaCrudRowList" class="note-row-list"></div>
         </div>
     </div>
 

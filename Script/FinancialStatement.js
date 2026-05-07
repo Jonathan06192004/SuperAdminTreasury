@@ -82,6 +82,159 @@ async function renderAll(monthIdx) {
     ]);
 }
 
+// ── BS Edit Dropdown ─────────────────────────────────────────────────────────
+function toggleBsDropdown() {
+    document.getElementById('bsEditMenu').classList.toggle('hidden');
+}
+function closeBsDropdown() {
+    document.getElementById('bsEditMenu').classList.add('hidden');
+}
+document.addEventListener('click', e => {
+    const dd = document.getElementById('bsEditDropdown');
+    if (dd && !dd.contains(e.target)) closeBsDropdown();
+});
+
+// ══════════════════════════════════════════════════════════════════════════════
+// BALANCE SHEET CRUD
+// ══════════════════════════════════════════════════════════════════════════════
+
+// Map each editable line label → its column key in balance_sheet table
+const BS_FIELD_MAP = {
+    'Cash and Cash Equivalents':          'cash',
+    'Investments':                        'investments',
+    'Accounts Receivable':                'accounts_receivable',
+    'Cash Held for Agency':               'cash_held_agency',
+    'Loans Receivable':                   'loans_receivable',
+    'Supplies':                           'supplies',
+    'Fixed Assets':                       'fixed_assets',
+    'Loans Receivable (Non-Current)':     'loans_nc',
+    'Other Non-Current Assets':           'other_assets_nc',
+    'Accounts Payable':                   'accounts_payable',
+    'Offerings Held for Agency':          'offerings_agency',
+    'Interfund Accounts Payable':         'interfund_ap',
+    'Loans Payable':                      'loans_payable',
+    'Unallocated Net Assets \u2013 Tithe':       'una_tithe',
+    'Unallocated Net Assets \u2013 Non-Tithe':   'una_non_tithe',
+    'Allocated Net Assets':               'allocated_na',
+    'Unexpended Plant Fund':              'unexpended_plant',
+    'Invested in Plant':                  'invested_plant',
+};
+
+const ALL_BS_FIELDS = [
+    { key: 'cash',                label: 'Cash and Cash Equivalents' },
+    { key: 'investments',         label: 'Investments' },
+    { key: 'accounts_receivable', label: 'Accounts Receivable' },
+    { key: 'cash_held_agency',    label: 'Cash Held for Agency' },
+    { key: 'loans_receivable',    label: 'Loans Receivable' },
+    { key: 'supplies',            label: 'Supplies' },
+    { key: 'fixed_assets',        label: 'Fixed Assets' },
+    { key: 'loans_nc',            label: 'Loans Receivable (Non-Current)' },
+    { key: 'other_assets_nc',     label: 'Other Non-Current Assets' },
+    { key: 'accounts_payable',    label: 'Accounts Payable' },
+    { key: 'offerings_agency',    label: 'Offerings Held for Agency' },
+    { key: 'interfund_ap',        label: 'Interfund Accounts Payable' },
+    { key: 'loans_payable',       label: 'Loans Payable' },
+    { key: 'una_tithe',           label: 'Unallocated Net Assets \u2013 Tithe' },
+    { key: 'una_non_tithe',       label: 'Unallocated Net Assets \u2013 Non-Tithe' },
+    { key: 'allocated_na',        label: 'Allocated Net Assets' },
+    { key: 'unexpended_plant',    label: 'Unexpended Plant Fund' },
+    { key: 'invested_plant',      label: 'Invested in Plant' },
+];
+
+let bsCrudRecord = null;
+
+async function bsCrudOpen() {
+    // Default to current month and 2026
+    document.getElementById('crudYear').value  = 2026;
+    document.getElementById('crudMonth').value = currentMonth;
+    document.getElementById('crudModalTitle').textContent = 'EDIT / ADD BALANCE SHEET';
+    document.getElementById('crudOverlay').classList.remove('hidden');
+    document.getElementById('crudModal').classList.remove('hidden');
+    await bsCrudLoad();
+}
+
+// Called whenever year or month changes inside the modal
+async function bsCrudLoad() {
+    const year  = parseInt(document.getElementById('crudYear').value);
+    const month = parseInt(document.getElementById('crudMonth').value);
+    const rows  = await tFetch('balance_sheet', `year=eq.${year}&month=eq.${month}&limit=1`);
+    bsCrudRecord = rows[0] || null;
+
+    const idWrap = document.getElementById('crudRecordIdWrap');
+    if (bsCrudRecord?.id) {
+        idWrap.style.display = '';
+        document.getElementById('crudRecordId').value = bsCrudRecord.id;
+    } else {
+        idWrap.style.display = 'none';
+    }
+
+    document.getElementById('crudFieldsGrid').innerHTML = ALL_BS_FIELDS.map(f => `
+        <div class="crud-field">
+            <label class="crud-label">${f.label}</label>
+            <input class="crud-input" id="crudF_${f.key}" type="number" step="0.01"
+                   value="${bsCrudRecord?.[f.key] ?? ''}" placeholder="0.00" />
+        </div>
+    `).join('');
+
+    document.getElementById('crudDeleteBtn').style.display = bsCrudRecord?.id ? '' : 'none';
+}
+
+function closeCrud() {
+    document.getElementById('crudOverlay').classList.add('hidden');
+    document.getElementById('crudModal').classList.add('hidden');
+    bsCrudRecord = null;
+}
+
+async function crudSave() {
+    const year  = parseInt(document.getElementById('crudYear').value);
+    const month = parseInt(document.getElementById('crudMonth').value);
+    const payload = { year, month };
+    ALL_BS_FIELDS.forEach(f => {
+        const val = document.getElementById(`crudF_${f.key}`)?.value;
+        payload[f.key] = val === '' ? null : parseFloat(val);
+    });
+
+    try {
+        if (bsCrudRecord?.id) {
+            // UPDATE
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet?id=eq.${bsCrudRecord.id}`, {
+                method: 'PATCH',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } else {
+            // INSERT
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet`, {
+                method: 'POST',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        }
+        closeCrud();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) {
+        alert('Save failed: ' + e.message);
+    }
+}
+
+async function crudDelete() {
+    if (!bsCrudRecord?.id) return;
+    if (!confirm('Delete this record? This cannot be undone.')) return;
+    try {
+        const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet?id=eq.${bsCrudRecord.id}`, {
+            method: 'DELETE',
+            headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY }
+        });
+        if (!res.ok) throw new Error(await res.text());
+        closeCrud();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) {
+        alert('Delete failed: ' + e.message);
+    }
+}
+
 // ══════════════════════════════════════════════════════════════════════════════
 // BALANCE SHEET
 // ══════════════════════════════════════════════════════════════════════════════
@@ -619,3 +772,464 @@ function flRow(r) {
     syncSelects(monthIdx);
     renderAll(monthIdx);
 })();
+
+// ══════════════════════════════════════════════════════════════════════════════
+// CASH NOTE CRUD
+// ══════════════════════════════════════════════════════════════════════════════
+async function openCashNoteCrud() {
+    document.getElementById('cashCrudOverlay').classList.remove('hidden');
+    document.getElementById('cashCrudModal').classList.remove('hidden');
+    document.getElementById('cashCrudYear').value  = 2026;
+    document.getElementById('cashCrudMonth').value = currentMonth;
+    await cashNoteCrudLoad();
+}
+
+function closeCashNoteCrud() {
+    document.getElementById('cashCrudOverlay').classList.add('hidden');
+    document.getElementById('cashCrudModal').classList.add('hidden');
+    document.getElementById('cashCrudFields').innerHTML = '';
+}
+
+async function cashNoteCrudLoad() {
+    const year  = parseInt(document.getElementById('cashCrudYear').value);
+    const month = parseInt(document.getElementById('cashCrudMonth').value);
+    const rows  = await tFetch('balance_sheet_note_cash', `year=eq.${year}&month=eq.${month}&order=sort_order.asc`);
+    const sel   = document.getElementById('cashCrudRowSelect');
+    sel.innerHTML = '<option value="">-- Select Row --</option>' +
+        rows.map(r => `<option value="${r.id}">${r.label}</option>`).join('');
+    document.getElementById('cashCrudFields').innerHTML = '';
+    document.getElementById('cashCrudDeleteBtn').classList.add('hidden');
+}
+
+let _cashCrudRow = null;
+function cashNoteCrudSelectRow() {
+    const id   = document.getElementById('cashCrudRowSelect').value;
+    const year = parseInt(document.getElementById('cashCrudYear').value);
+    const month= parseInt(document.getElementById('cashCrudMonth').value);
+    if (!id) { document.getElementById('cashCrudFields').innerHTML = ''; document.getElementById('cashCrudDeleteBtn').classList.add('hidden'); return; }
+    tFetch('balance_sheet_note_cash', `id=eq.${id}&limit=1`).then(rows => {
+        _cashCrudRow = rows[0] || null;
+        document.getElementById('cashCrudDeleteBtn').classList.toggle('hidden', !_cashCrudRow);
+        document.getElementById('cashCrudFields').innerHTML = `
+            <div class="crud-field"><label class="crud-label">LABEL</label><input class="crud-input" id="cashCF_label" value="${_cashCrudRow?.label ?? ''}" /></div>
+            <div class="crud-field"><label class="crud-label">CURRENT AMOUNT</label><input class="crud-input" id="cashCF_current" type="number" step="0.01" value="${_cashCrudRow?.current_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">PREVIOUS AMOUNT</label><input class="crud-input" id="cashCF_previous" type="number" step="0.01" value="${_cashCrudRow?.previous_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">SORT ORDER</label><input class="crud-input" id="cashCF_sort" type="number" value="${_cashCrudRow?.sort_order ?? ''}" /></div>
+        `;
+    });
+}
+
+async function cashNoteCrudSave() {
+    const year  = parseInt(document.getElementById('cashCrudYear').value);
+    const month = parseInt(document.getElementById('cashCrudMonth').value);
+    const rowId = document.getElementById('cashCrudRowSelect').value;
+
+    const payload = {
+        year, month,
+        label:           document.getElementById('cashCF_label')?.value ?? '',
+        current_amount:  document.getElementById('cashCF_current')?.value  === '' ? null : parseFloat(document.getElementById('cashCF_current').value),
+        previous_amount: document.getElementById('cashCF_previous')?.value === '' ? null : parseFloat(document.getElementById('cashCF_previous').value),
+        sort_order:      document.getElementById('cashCF_sort')?.value      === '' ? null : parseInt(document.getElementById('cashCF_sort').value),
+    };
+
+    try {
+        if (rowId && _cashCrudRow) {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_cash?id=eq.${rowId}`, {
+                method: 'PATCH',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } else {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_cash`, {
+                method: 'POST',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        }
+        await cashNoteCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Save failed: ' + e.message); }
+}
+
+async function cashNoteCrudDelete() {
+    if (!_cashCrudRow?.id) return;
+    if (!confirm('Delete this row?')) return;
+    try {
+        const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_cash?id=eq.${_cashCrudRow.id}`, {
+            method: 'DELETE',
+            headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY }
+        });
+        if (!res.ok) throw new Error(await res.text());
+        _cashCrudRow = null;
+        await cashNoteCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AR NOTE CRUD
+// ══════════════════════════════════════════════════════════════════════════════
+async function openArNoteCrud() {
+    document.getElementById('arCrudOverlay').classList.remove('hidden');
+    document.getElementById('arCrudModal').classList.remove('hidden');
+    document.getElementById('arCrudYear').value  = 2026;
+    document.getElementById('arCrudMonth').value = currentMonth;
+    await arNoteCrudLoad();
+}
+
+function closeArNoteCrud() {
+    document.getElementById('arCrudOverlay').classList.add('hidden');
+    document.getElementById('arCrudModal').classList.add('hidden');
+    document.getElementById('arCrudFields').innerHTML = '';
+}
+
+async function arNoteCrudLoad() {
+    const year  = parseInt(document.getElementById('arCrudYear').value);
+    const month = parseInt(document.getElementById('arCrudMonth').value);
+    const rows  = await tFetch('balance_sheet_note_ar', `year=eq.${year}&month=eq.${month}&order=sort_order.asc`);
+    const sel   = document.getElementById('arCrudRowSelect');
+    sel.innerHTML = '<option value="">-- Select Row --</option>' +
+        rows.map(r => `<option value="${r.id}">${r.label}</option>`).join('');
+    document.getElementById('arCrudFields').innerHTML = '';
+    document.getElementById('arCrudDeleteBtn').classList.add('hidden');
+}
+
+let _arCrudRow = null;
+function arNoteCrudSelectRow() {
+    const id = document.getElementById('arCrudRowSelect').value;
+    if (!id) { document.getElementById('arCrudFields').innerHTML = ''; document.getElementById('arCrudDeleteBtn').classList.add('hidden'); return; }
+    tFetch('balance_sheet_note_ar', `id=eq.${id}&limit=1`).then(rows => {
+        _arCrudRow = rows[0] || null;
+        document.getElementById('arCrudDeleteBtn').classList.toggle('hidden', !_arCrudRow);
+        document.getElementById('arCrudFields').innerHTML = `
+            <div class="crud-field"><label class="crud-label">LABEL</label><input class="crud-input" id="arCF_label" value="${_arCrudRow?.label ?? ''}" /></div>
+            <div class="crud-field"><label class="crud-label">CURRENT AMOUNT</label><input class="crud-input" id="arCF_current" type="number" step="0.01" value="${_arCrudRow?.current_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">PREVIOUS AMOUNT</label><input class="crud-input" id="arCF_previous" type="number" step="0.01" value="${_arCrudRow?.previous_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">SORT ORDER</label><input class="crud-input" id="arCF_sort" type="number" value="${_arCrudRow?.sort_order ?? ''}" /></div>
+        `;
+    });
+}
+
+async function arNoteCrudSave() {
+    const year  = parseInt(document.getElementById('arCrudYear').value);
+    const month = parseInt(document.getElementById('arCrudMonth').value);
+    const rowId = document.getElementById('arCrudRowSelect').value;
+
+    const payload = {
+        year, month,
+        label:           document.getElementById('arCF_label')?.value ?? '',
+        current_amount:  document.getElementById('arCF_current')?.value  === '' ? null : parseFloat(document.getElementById('arCF_current').value),
+        previous_amount: document.getElementById('arCF_previous')?.value === '' ? null : parseFloat(document.getElementById('arCF_previous').value),
+        sort_order:      document.getElementById('arCF_sort')?.value      === '' ? null : parseInt(document.getElementById('arCF_sort').value),
+    };
+
+    try {
+        if (rowId && _arCrudRow) {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ar?id=eq.${rowId}`, {
+                method: 'PATCH',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } else {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ar`, {
+                method: 'POST',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        }
+        await arNoteCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Save failed: ' + e.message); }
+}
+
+async function arNoteCrudDelete() {
+    if (!_arCrudRow?.id) return;
+    if (!confirm('Delete this row?')) return;
+    try {
+        const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ar?id=eq.${_arCrudRow.id}`, {
+            method: 'DELETE',
+            headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY }
+        });
+        if (!res.ok) throw new Error(await res.text());
+        _arCrudRow = null;
+        await arNoteCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+// ── AR SDA CRUD ───────────────────────────────────────────────────────────────
+function openArSdaCrud() {
+    document.getElementById('arSdaCrudOverlay').classList.remove('hidden');
+    document.getElementById('arSdaCrudModal').classList.remove('hidden');
+    document.getElementById('arSdaCrudYear').value  = document.getElementById('arCrudYear').value;
+    document.getElementById('arSdaCrudMonth').value = document.getElementById('arCrudMonth').value;
+    arSdaCrudLoad();
+}
+
+function closeArSdaCrud() {
+    document.getElementById('arSdaCrudOverlay').classList.add('hidden');
+    document.getElementById('arSdaCrudModal').classList.add('hidden');
+    document.getElementById('arSdaCrudFields').innerHTML = '';
+}
+
+async function arSdaCrudLoad() {
+    const year  = parseInt(document.getElementById('arSdaCrudYear').value);
+    const month = parseInt(document.getElementById('arSdaCrudMonth').value);
+    const rows  = await tFetch('balance_sheet_note_ar_sda', `year=eq.${year}&month=eq.${month}&order=sort_order.asc`);
+    const sel   = document.getElementById('arSdaCrudRowSelect');
+    sel.innerHTML = '<option value="">-- Select Entity --</option>' +
+        rows.map(r => `<option value="${r.id}">${r.entity_name}</option>`).join('');
+    document.getElementById('arSdaCrudFields').innerHTML = '';
+    document.getElementById('arSdaCrudDeleteBtn').classList.add('hidden');
+}
+
+let _arSdaCrudRow = null;
+function arSdaCrudSelectRow() {
+    const id = document.getElementById('arSdaCrudRowSelect').value;
+    if (!id) { document.getElementById('arSdaCrudFields').innerHTML = ''; document.getElementById('arSdaCrudDeleteBtn').classList.add('hidden'); return; }
+    tFetch('balance_sheet_note_ar_sda', `id=eq.${id}&limit=1`).then(rows => {
+        _arSdaCrudRow = rows[0] || null;
+        document.getElementById('arSdaCrudDeleteBtn').classList.toggle('hidden', !_arSdaCrudRow);
+        document.getElementById('arSdaCrudFields').innerHTML = `
+            <div class="crud-field"><label class="crud-label">ENTITY NAME</label><input class="crud-input" id="arSdaCF_name" value="${_arSdaCrudRow?.entity_name ?? ''}" /></div>
+            <div class="crud-field"><label class="crud-label">AMOUNT</label><input class="crud-input" id="arSdaCF_amount" type="number" step="0.01" value="${_arSdaCrudRow?.amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">SORT ORDER</label><input class="crud-input" id="arSdaCF_sort" type="number" value="${_arSdaCrudRow?.sort_order ?? ''}" /></div>
+        `;
+    });
+}
+
+async function arSdaCrudSave() {
+    const year  = parseInt(document.getElementById('arSdaCrudYear').value);
+    const month = parseInt(document.getElementById('arSdaCrudMonth').value);
+    const rowId = document.getElementById('arSdaCrudRowSelect').value;
+
+    const payload = {
+        year, month,
+        entity_name: document.getElementById('arSdaCF_name')?.value ?? '',
+        amount:      document.getElementById('arSdaCF_amount')?.value === '' ? null : parseFloat(document.getElementById('arSdaCF_amount').value),
+        sort_order:  document.getElementById('arSdaCF_sort')?.value   === '' ? null : parseInt(document.getElementById('arSdaCF_sort').value),
+    };
+
+    try {
+        if (rowId && _arSdaCrudRow) {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ar_sda?id=eq.${rowId}`, {
+                method: 'PATCH',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } else {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ar_sda`, {
+                method: 'POST',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        }
+        await arSdaCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Save failed: ' + e.message); }
+}
+
+async function arSdaCrudDelete() {
+    if (!_arSdaCrudRow?.id) return;
+    if (!confirm('Delete this entity?')) return;
+    try {
+        const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ar_sda?id=eq.${_arSdaCrudRow.id}`, {
+            method: 'DELETE',
+            headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY }
+        });
+        if (!res.ok) throw new Error(await res.text());
+        _arSdaCrudRow = null;
+        await arSdaCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// AP NOTE CRUD
+// ══════════════════════════════════════════════════════════════════════════════
+async function openApNoteCrud() {
+    document.getElementById('apCrudOverlay').classList.remove('hidden');
+    document.getElementById('apCrudModal').classList.remove('hidden');
+    document.getElementById('apCrudYear').value  = 2026;
+    document.getElementById('apCrudMonth').value = currentMonth;
+    await apNoteCrudLoad();
+}
+
+function closeApNoteCrud() {
+    document.getElementById('apCrudOverlay').classList.add('hidden');
+    document.getElementById('apCrudModal').classList.add('hidden');
+    document.getElementById('apCrudFields').innerHTML = '';
+}
+
+async function apNoteCrudLoad() {
+    const year  = parseInt(document.getElementById('apCrudYear').value);
+    const month = parseInt(document.getElementById('apCrudMonth').value);
+    const rows  = await tFetch('balance_sheet_note_ap', `year=eq.${year}&month=eq.${month}&order=sort_order.asc`);
+    const sel   = document.getElementById('apCrudRowSelect');
+    sel.innerHTML = '<option value="">-- Select Row --</option>' +
+        rows.map(r => `<option value="${r.id}">${r.label}</option>`).join('');
+    document.getElementById('apCrudFields').innerHTML = '';
+    document.getElementById('apCrudDeleteBtn').classList.add('hidden');
+}
+
+let _apCrudRow = null;
+function apNoteCrudSelectRow() {
+    const id = document.getElementById('apCrudRowSelect').value;
+    if (!id) { document.getElementById('apCrudFields').innerHTML = ''; document.getElementById('apCrudDeleteBtn').classList.add('hidden'); return; }
+    tFetch('balance_sheet_note_ap', `id=eq.${id}&limit=1`).then(rows => {
+        _apCrudRow = rows[0] || null;
+        document.getElementById('apCrudDeleteBtn').classList.toggle('hidden', !_apCrudRow);
+        document.getElementById('apCrudFields').innerHTML = `
+            <div class="crud-field"><label class="crud-label">LABEL</label><input class="crud-input" id="apCF_label" value="${_apCrudRow?.label ?? ''}" /></div>
+            <div class="crud-field"><label class="crud-label">CURRENT AMOUNT</label><input class="crud-input" id="apCF_current" type="number" step="0.01" value="${_apCrudRow?.current_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">PREVIOUS AMOUNT</label><input class="crud-input" id="apCF_previous" type="number" step="0.01" value="${_apCrudRow?.previous_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">SORT ORDER</label><input class="crud-input" id="apCF_sort" type="number" value="${_apCrudRow?.sort_order ?? ''}" /></div>
+        `;
+    });
+}
+
+async function apNoteCrudSave() {
+    const year  = parseInt(document.getElementById('apCrudYear').value);
+    const month = parseInt(document.getElementById('apCrudMonth').value);
+    const rowId = document.getElementById('apCrudRowSelect').value;
+
+    const payload = {
+        year, month,
+        label:           document.getElementById('apCF_label')?.value ?? '',
+        current_amount:  document.getElementById('apCF_current')?.value  === '' ? null : parseFloat(document.getElementById('apCF_current').value),
+        previous_amount: document.getElementById('apCF_previous')?.value === '' ? null : parseFloat(document.getElementById('apCF_previous').value),
+        sort_order:      document.getElementById('apCF_sort')?.value      === '' ? null : parseInt(document.getElementById('apCF_sort').value),
+    };
+
+    try {
+        if (rowId && _apCrudRow) {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ap?id=eq.${rowId}`, {
+                method: 'PATCH',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } else {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ap`, {
+                method: 'POST',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        }
+        await apNoteCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Save failed: ' + e.message); }
+}
+
+async function apNoteCrudDelete() {
+    if (!_apCrudRow?.id) return;
+    if (!confirm('Delete this row?')) return;
+    try {
+        const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ap?id=eq.${_apCrudRow.id}`, {
+            method: 'DELETE',
+            headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY }
+        });
+        if (!res.ok) throw new Error(await res.text());
+        _apCrudRow = null;
+        await apNoteCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Delete failed: ' + e.message); }
+}
+
+// ── AP SDA CRUD ───────────────────────────────────────────────────────────────
+function openApSdaCrud() {
+    document.getElementById('apSdaCrudOverlay').classList.remove('hidden');
+    document.getElementById('apSdaCrudModal').classList.remove('hidden');
+    document.getElementById('apSdaCrudYear').value  = document.getElementById('apCrudYear').value;
+    document.getElementById('apSdaCrudMonth').value = document.getElementById('apCrudMonth').value;
+    apSdaCrudLoad();
+}
+
+function closeApSdaCrud() {
+    document.getElementById('apSdaCrudOverlay').classList.add('hidden');
+    document.getElementById('apSdaCrudModal').classList.add('hidden');
+    document.getElementById('apSdaCrudFields').innerHTML = '';
+}
+
+async function apSdaCrudLoad() {
+    const year  = parseInt(document.getElementById('apSdaCrudYear').value);
+    const month = parseInt(document.getElementById('apSdaCrudMonth').value);
+    const rows  = await tFetch('balance_sheet_note_ap_sda', `year=eq.${year}&month=eq.${month}&order=sort_order.asc`);
+    const sel   = document.getElementById('apSdaCrudRowSelect');
+    sel.innerHTML = '<option value="">-- Select Entity --</option>' +
+        rows.map(r => `<option value="${r.id}">${r.entity_name}</option>`).join('');
+    document.getElementById('apSdaCrudFields').innerHTML = '';
+    document.getElementById('apSdaCrudDeleteBtn').classList.add('hidden');
+}
+
+let _apSdaCrudRow = null;
+function apSdaCrudSelectRow() {
+    const id = document.getElementById('apSdaCrudRowSelect').value;
+    if (!id) { document.getElementById('apSdaCrudFields').innerHTML = ''; document.getElementById('apSdaCrudDeleteBtn').classList.add('hidden'); return; }
+    tFetch('balance_sheet_note_ap_sda', `id=eq.${id}&limit=1`).then(rows => {
+        _apSdaCrudRow = rows[0] || null;
+        document.getElementById('apSdaCrudDeleteBtn').classList.toggle('hidden', !_apSdaCrudRow);
+        document.getElementById('apSdaCrudFields').innerHTML = `
+            <div class="crud-field"><label class="crud-label">ENTITY NAME</label><input class="crud-input" id="apSdaCF_name" value="${_apSdaCrudRow?.entity_name ?? ''}" /></div>
+            <div class="crud-field"><label class="crud-label">BASE AMOUNT</label><input class="crud-input" id="apSdaCF_base" type="number" step="0.01" value="${_apSdaCrudRow?.base_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">CURRENT AMOUNT</label><input class="crud-input" id="apSdaCF_current" type="number" step="0.01" value="${_apSdaCrudRow?.current_amount ?? ''}" placeholder="0.00" /></div>
+            <div class="crud-field"><label class="crud-label">SORT ORDER</label><input class="crud-input" id="apSdaCF_sort" type="number" value="${_apSdaCrudRow?.sort_order ?? ''}" /></div>
+        `;
+    });
+}
+
+async function apSdaCrudSave() {
+    const year  = parseInt(document.getElementById('apSdaCrudYear').value);
+    const month = parseInt(document.getElementById('apSdaCrudMonth').value);
+    const rowId = document.getElementById('apSdaCrudRowSelect').value;
+
+    const payload = {
+        year, month,
+        entity_name:    document.getElementById('apSdaCF_name')?.value    ?? '',
+        base_amount:    document.getElementById('apSdaCF_base')?.value    === '' ? null : parseFloat(document.getElementById('apSdaCF_base').value),
+        current_amount: document.getElementById('apSdaCF_current')?.value === '' ? null : parseFloat(document.getElementById('apSdaCF_current').value),
+        sort_order:     document.getElementById('apSdaCF_sort')?.value    === '' ? null : parseInt(document.getElementById('apSdaCF_sort').value),
+    };
+
+    try {
+        if (rowId && _apSdaCrudRow) {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ap_sda?id=eq.${rowId}`, {
+                method: 'PATCH',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        } else {
+            const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ap_sda`, {
+                method: 'POST',
+                headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+                body: JSON.stringify(payload)
+            });
+            if (!res.ok) throw new Error(await res.text());
+        }
+        await apSdaCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Save failed: ' + e.message); }
+}
+
+async function apSdaCrudDelete() {
+    if (!_apSdaCrudRow?.id) return;
+    if (!confirm('Delete this entity?')) return;
+    try {
+        const res = await fetch(`${TREASURY_URL}/rest/v1/balance_sheet_note_ap_sda?id=eq.${_apSdaCrudRow.id}`, {
+            method: 'DELETE',
+            headers: { apikey: TREASURY_KEY, Authorization: 'Bearer ' + TREASURY_KEY }
+        });
+        if (!res.ok) throw new Error(await res.text());
+        _apSdaCrudRow = null;
+        await apSdaCrudLoad();
+        await renderBalanceSheet(currentMonth);
+    } catch (e) { alert('Delete failed: ' + e.message); }
+}

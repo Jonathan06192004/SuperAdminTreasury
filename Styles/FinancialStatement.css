@@ -455,6 +455,43 @@
 }
 .crud-add-btn:hover { background: rgba(64,166,255,0.28); }
 
+/* ── BS Edit Dropdown ────────────────────────────────────────────────────── */
+.bs-edit-dropdown { position: relative; }
+
+.bs-edit-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    background: #0d1f3c;
+    border: 1px solid rgba(64,166,255,0.4);
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    z-index: 200;
+    min-width: 200px;
+    overflow: hidden;
+    animation: crudIn 0.15s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+.bs-edit-menu.hidden { display: none; }
+
+.bs-edit-menu button {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(64,166,255,0.12);
+    color: #eef3ff;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.65rem;
+    letter-spacing: 1px;
+    padding: 10px 16px;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+.bs-edit-menu button:last-child { border-bottom: none; }
+.bs-edit-menu button:hover { background: rgba(64,166,255,0.15); color: #40a6ff; }
+
 /* ── CRUD Overlay & Modal ────────────────────────────────────────────────── */
 .crud-overlay {
     position: fixed;
@@ -741,3 +778,91 @@
     color: rgba(64,166,255,0.7);
     text-transform: uppercase;
 }
+
+/* ── Note Row List (inline CRUD) ─────────────────────────────────────────── */
+.note-row-list { display: flex; flex-direction: column; gap: 6px; margin-top: 4px; max-height: 420px; overflow-y: auto; }
+
+.note-row-item {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(64,166,255,0.18);
+    border-radius: 8px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+}
+.note-row-item.is-editing { border-color: #40a6ff; }
+
+.note-row-item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 9px 14px;
+    cursor: pointer;
+    user-select: none;
+    gap: 10px;
+}
+.note-row-item-header:hover { background: rgba(64,166,255,0.08); }
+
+.note-row-item-label {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.5px;
+    color: #eef3ff;
+    flex: 1;
+}
+.note-row-item-label.is-new { color: #40a6ff; font-style: italic; }
+
+.note-row-item-amounts {
+    font-size: 0.68rem;
+    color: rgba(238,243,255,0.45);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.note-row-item-toggle {
+    font-size: 0.65rem;
+    color: #40a6ff;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+}
+.note-row-item.is-editing .note-row-item-toggle { transform: rotate(90deg); }
+
+.note-row-item-body {
+    display: none;
+    padding: 12px 14px 14px;
+    border-top: 1px solid rgba(64,166,255,0.15);
+    background: rgba(13,31,60,0.6);
+}
+.note-row-item.is-editing .note-row-item-body { display: block; }
+
+.note-row-item-fields { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; margin-bottom: 12px; }
+
+.note-row-item-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.note-row-empty {
+    text-align: center;
+    padding: 20px;
+    color: rgba(238,243,255,0.3);
+    font-size: 0.72rem;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: 1px;
+}
+
+/* ── BS table inline edit button ─────────────────────────────────────────── */
+.bs-inline-edit {
+    background: none;
+    border: 1px solid rgba(64,166,255,0.35);
+    border-radius: 4px;
+    color: #40a6ff;
+    font-size: 0.55rem;
+    font-weight: 700;
+    padding: 1px 6px;
+    cursor: pointer;
+    margin-left: 7px;
+    opacity: 0;
+    transition: opacity 0.15s, background 0.15s;
+    vertical-align: middle;
+    font-family: 'Montserrat', sans-serif;
+}
+.fs-table tbody tr:hover .bs-inline-edit { opacity: 1; }
+.bs-inline-edit:hover { background: rgba(64,166,255,0.2); }

@@ -6,6 +6,7 @@ const MONTHS = ['','January','February','March','April','May','June','July','Aug
 let currentCategory = 'tithes';
 let currentMission = null;
 let missions = [];
+let missionChurches = []; // churches belonging to currentMission
 
 // Per-mission table state
 let allRows = [];
@@ -88,14 +89,15 @@ function selectMissionById(m) {
 }
 
 // ── Summary table ─────────────────────────────────────────────────────────────
+// Schema: tithes/offerings → church_id → churches → district_id → districts → mission_id → missions
 
 async function loadSummary() {
     const area = document.getElementById('summary-table-area');
     area.innerHTML = '<p class="placeholder-note">Loading…</p>';
     try {
-        // Fetch all rows for current category joined with mission info
+        // Fetch all rows with nested join: churches → districts → missions
         allSummaryRows = await supabase(
-            currentCategory + '?select=year,month,amount,budget,missions(code,name)&order=year,month'
+            currentCategory + '?select=year,month,amount,budget,churches(name,districts(mission_id,missions(id,code,name)))&order=year,month'
         );
         buildSummaryFilterDropdown();
         applySummaryFilter();
@@ -136,13 +138,14 @@ function applySummaryFilter() {
     if (summaryFilterYear) rows = rows.filter(r => String(r.year) === summaryFilterYear);
     if (summaryFilterMonth) rows = rows.filter(r => String(r.month) === summaryFilterMonth);
 
-    // Aggregate totals per mission
+    // Aggregate totals per mission via churches → districts → missions
     const totals = {};
     missions.forEach(m => {
         totals[m.code] = { name: m.name, amount: 0, budget: 0 };
     });
     rows.forEach(r => {
-        const code = r.missions?.code;
+        const mission = r.churches?.districts?.missions;
+        const code = mission?.code;
         if (code && totals[code]) {
             totals[code].amount += Number(r.amount) || 0;
             totals[code].budget += Number(r.budget) || 0;
@@ -176,7 +179,6 @@ function updateSummaryFilterLabel() {
 
 function renderSummaryTable(totals) {
     const area = document.getElementById('summary-table-area');
-    const label = currentCategory === 'tithes' ? 'Tithes' : 'Offerings';
 
     const table = document.createElement('table');
     table.className = 'data-table';
@@ -209,7 +211,6 @@ function renderSummaryTable(totals) {
         tbody.appendChild(tr);
     });
 
-    // Grand total row
     const grandVariance = grandAmount - grandBudget;
     const totalTr = document.createElement('tr');
     totalTr.className = 'total-row';
@@ -226,6 +227,7 @@ function renderSummaryTable(totals) {
 }
 
 // ── Per-mission table ─────────────────────────────────────────────────────────
+// Fetch all tithes/offerings whose church belongs to districts of currentMission
 
 async function loadData() {
     const title = document.getElementById('update-title');
@@ -242,10 +244,43 @@ async function loadData() {
     filterBtn.style.display = 'none';
 
     try {
-        allRows = await supabase(
-            currentCategory + '?mission_id=eq.' + currentMission.id +
-            '&select=id,year,month,amount,budget&order=year,month'
+        // Step 1: get district IDs for this mission
+        const districtRows = await supabase(
+            'districts?mission_id=eq.' + currentMission.id + '&select=id'
         );
+        const districtIds = districtRows.map(d => d.id);
+
+        if (!districtIds.length) {
+            missionChurches = [];
+            allRows = [];
+            area.innerHTML = '<p class="placeholder-note">No districts found for this mission.</p>';
+            addBtn.style.display = '';
+            filterBtn.style.display = '';
+            return;
+        }
+
+        // Step 2: get churches under those districts
+        missionChurches = await supabase(
+            'churches?district_id=in.(' + districtIds.join(',') + ')&select=id,name&order=name'
+        );
+
+        if (!missionChurches.length) {
+            allRows = [];
+            area.innerHTML = '<p class="placeholder-note">No churches found for this mission.</p>';
+            addBtn.style.display = '';
+            filterBtn.style.display = '';
+            return;
+        }
+
+        // Step 3: fetch financial records for those churches
+        const churchIds = missionChurches.map(c => c.id);
+        allRows = await supabase(
+            currentCategory +
+            '?church_id=in.(' + churchIds.join(',') + ')' +
+            '&select=id,year,month,amount,budget,church_id,churches(name)' +
+            '&order=year,month'
+        );
+
         addBtn.style.display = '';
         filterBtn.style.display = '';
         buildFilterDropdown();
@@ -322,19 +357,21 @@ function renderTable(rows) {
     table.className = 'data-table';
     table.innerHTML = `
         <thead>
-            <tr><th>Year</th><th>Month</th><th>Amount</th><th>Budget</th><th>Actions</th></tr>
+            <tr><th>Church</th><th>Year</th><th>Month</th><th>Amount</th><th>Budget</th><th>Actions</th></tr>
         </thead>
     `;
     const tbody = document.createElement('tbody');
     rows.forEach(row => {
+        const churchName = row.churches?.name || '—';
         const tr = document.createElement('tr');
         tr.innerHTML = `
+            <td>${churchName}</td>
             <td>${row.year}</td>
             <td>${MONTHS[row.month]}</td>
             <td>${row.amount != null ? fmt(row.amount) : '—'}</td>
             <td>${row.budget != null ? fmt(row.budget) : '—'}</td>
             <td class="action-cell">
-                <button class="row-edit-btn" onclick="openEditModal(${row.id},${row.year},${row.month},${row.amount ?? 0},${row.budget ?? 0})">Edit</button>
+                <button class="row-edit-btn" onclick="openEditModal(${row.id},${row.year},${row.month},${row.amount ?? 0},${row.budget ?? 0},${row.church_id})">Edit</button>
                 <button class="row-delete-btn" onclick="deleteRow(${row.id})">Delete</button>
             </td>
         `;
@@ -347,10 +384,24 @@ function renderTable(rows) {
 
 // ── Modal ─────────────────────────────────────────────────────────────────────
 
-function openEditModal(id, year, month, amount, budget) {
+function populateChurchSelect(selectedId = null) {
+    const sel = document.getElementById('f-church');
+    sel.innerHTML = '';
+    missionChurches.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        if (selectedId && c.id === selectedId) opt.selected = true;
+        sel.appendChild(opt);
+    });
+}
+
+function openEditModal(id, year, month, amount, budget, churchId) {
     modalMode = 'edit';
     editingId = id;
     document.getElementById('modal-title').textContent = 'Edit Entry';
+    document.getElementById('f-church-group').style.display = 'none';
+    populateChurchSelect(churchId);
     document.getElementById('f-year').value = year;
     document.getElementById('f-month').value = month;
     document.getElementById('f-amount').value = amount;
@@ -363,6 +414,8 @@ function openAddModal() {
     modalMode = 'add';
     editingId = null;
     document.getElementById('modal-title').textContent = 'Add Entry';
+    document.getElementById('f-church-group').style.display = '';
+    populateChurchSelect();
     document.getElementById('f-year').value = new Date().getFullYear();
     document.getElementById('f-month').value = new Date().getMonth() + 1;
     document.getElementById('f-amount').value = '';
@@ -380,15 +433,16 @@ async function saveModal() {
     const month = parseInt(document.getElementById('f-month').value);
     const amount = parseFloat(document.getElementById('f-amount').value) || null;
     const budget = parseFloat(document.getElementById('f-budget').value) || null;
+    const churchId = parseInt(document.getElementById('f-church').value);
     const errEl = document.getElementById('modal-error');
     const saveBtn = document.getElementById('modal-save-btn');
 
     if (!year || !month) { errEl.textContent = 'Year and month are required.'; return; }
 
     if (modalMode === 'add') {
-        const duplicate = allRows.find(r => r.year === year && r.month === month);
+        const duplicate = allRows.find(r => r.year === year && r.month === month && r.church_id === churchId);
         if (duplicate) {
-            errEl.textContent = MONTHS[month] + ' ' + year + ' already exists for ' + currentMission.code + '. Use Edit to update it.';
+            errEl.textContent = MONTHS[month] + ' ' + year + ' already exists for this church. Use Edit to update it.';
             return;
         }
     }
@@ -406,7 +460,7 @@ async function saveModal() {
         } else {
             await supabase(currentCategory, {
                 method: 'POST',
-                body: JSON.stringify({ mission_id: currentMission.id, year, month, amount, budget })
+                body: JSON.stringify({ church_id: churchId, year, month, amount, budget })
             });
         }
         closeModal();
@@ -447,5 +501,12 @@ document.addEventListener('click', function (e) {
         }
     });
 });
+
+// Apply saved theme
+(function() {
+    const t = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light-mode', t === 'light');
+    document.body.classList.toggle('dark-mode', t === 'dark');
+})();
 
 loadMissions();
