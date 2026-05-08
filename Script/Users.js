@@ -1,8 +1,6 @@
-// Super-Admin Treasury DB (users table)
 const SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
 
-// Treasury DB (viewers data — missions list)
 const TREASURY_URL = 'https://bchvcxkocdlrkkzivuun.supabase.co';
 const TREASURY_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjaHZjeGtvY2Rscmtreml2dXVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODA3NjksImV4cCI6MjA5Mjg1Njc2OX0.oyfzu_VNk9nZocRcq02JTmxdgQEi3BqclZEKgHwqF5U';
 
@@ -344,12 +342,5 @@ async function deleteUser(id) {
         alert('Delete failed: ' + e.message);
     }
 }
-
-// Apply saved theme
-(function() {
-    const t = localStorage.getItem('theme') || 'dark';
-    document.body.classList.toggle('light-mode', t === 'light');
-    document.body.classList.toggle('dark-mode', t === 'dark');
-})();
 
 init();

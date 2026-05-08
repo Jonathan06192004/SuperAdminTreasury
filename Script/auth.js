@@ -12,3 +12,9 @@ function logout() {
     sessionStorage.removeItem('sa_user');
     window.location.replace('../index.html');
 }
+
+(function() {
+    const t = localStorage.getItem('theme') || 'dark';
+    document.body.classList.toggle('light-mode', t === 'light');
+    document.body.classList.toggle('dark-mode', t === 'dark');
+})();

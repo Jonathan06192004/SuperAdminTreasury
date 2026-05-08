@@ -6,7 +6,7 @@ const MONTHS = ['','January','February','March','April','May','June','July','Aug
 let currentCategory = 'tithes';
 let currentMission = null;
 let missions = [];
-let missionChurches = []; // churches belonging to currentMission
+let missionChurches = [];
 
 // Per-mission table state
 let allRows = [];
@@ -95,7 +95,6 @@ async function loadSummary() {
     const area = document.getElementById('summary-table-area');
     area.innerHTML = '<p class="placeholder-note">Loading…</p>';
     try {
-        // Fetch all rows with nested join: churches → districts → missions
         allSummaryRows = await supabase(
             currentCategory + '?select=year,month,amount,budget,churches(name,districts(mission_id,missions(id,code,name)))&order=year,month'
         );
@@ -501,12 +500,5 @@ document.addEventListener('click', function (e) {
         }
     });
 });
-
-// Apply saved theme
-(function() {
-    const t = localStorage.getItem('theme') || 'dark';
-    document.body.classList.toggle('light-mode', t === 'light');
-    document.body.classList.toggle('dark-mode', t === 'dark');
-})();
 
 loadMissions();
