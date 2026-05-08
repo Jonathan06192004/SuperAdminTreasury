@@ -11,9 +11,12 @@ const headers = {
 };
 
 let allUsers = [];
+let allViewers = [];
 let missions = [];
 let modalMode = 'add';
 let editingId = null;
+let viewerModalMode = 'add';
+let editingViewerId = null;
 let resetTargetId = null;
 let roleFilter = '';
 
@@ -63,7 +66,7 @@ function generateToken() {
 // ── Init ──────────────────────────────────────────────────────────────────────
 
 async function init() {
-    await Promise.all([loadMissions(), loadUsers()]);
+    await Promise.all([loadMissions(), loadUsers(), loadViewers()]);
 }
 
 async function loadMissions() {
@@ -87,10 +90,23 @@ async function loadUsers() {
     const area = document.getElementById('table-area');
     area.innerHTML = '<p class="placeholder-note">Loading…</p>';
     try {
-        allUsers = await sb('users?select=id,username,full_name,role,mission_code,is_active,plain_password,token,created_at&order=created_at.asc');
+        const data = await sb('users?select=id,username,full_name,role,mission_code,is_active,plain_password,token,created_at&order=created_at.asc');
+        // exclude viewers from admin table
+        allUsers = data.filter(u => u.role !== 'viewer');
         renderTable();
     } catch (e) {
         area.innerHTML = '<p class="error-note">Failed to load users: ' + e.message + '</p>';
+    }
+}
+
+async function loadViewers() {
+    const area = document.getElementById('viewer-table-area');
+    area.innerHTML = '<p class="placeholder-note">Loading…</p>';
+    try {
+        allViewers = await sb('union_users?select=id,username,full_name,email,phone,is_active,created_at&order=created_at.asc');
+        renderViewerTable();
+    } catch (e) {
+        area.innerHTML = '<p class="error-note">Failed to load viewers: ' + e.message + '</p>';
     }
 }
 
@@ -105,6 +121,8 @@ function setRoleFilter(btn, role) {
 
 function applySearch() { renderTable(); }
 
+function applyViewerSearch() { renderViewerTable(); }
+
 function getFilteredUsers() {
     const q = document.getElementById('search-input').value.trim().toLowerCase();
     return allUsers.filter(u => {
@@ -116,7 +134,7 @@ function getFilteredUsers() {
     });
 }
 
-// ── Render ────────────────────────────────────────────────────────────────────
+// ── Render admin table ────────────────────────────────────────────────────────
 
 function renderTable() {
     const area = document.getElementById('table-area');
@@ -193,7 +211,53 @@ function renderTable() {
     area.appendChild(table);
 }
 
-// ── Add / Edit Modal ──────────────────────────────────────────────────────────
+// ── Render viewer table ───────────────────────────────────────────────────────
+
+function renderViewerTable() {
+    const area = document.getElementById('viewer-table-area');
+    const q = document.getElementById('viewer-search-input').value.trim().toLowerCase();
+    const filtered = allViewers.filter(v =>
+        !q || v.full_name?.toLowerCase().includes(q) || v.username?.toLowerCase().includes(q)
+    );
+
+    document.getElementById('viewer-count').textContent =
+        filtered.length + ' viewer' + (filtered.length !== 1 ? 's' : '');
+
+    if (!filtered.length) {
+        area.innerHTML = '<p class="placeholder-note">No viewers found.</p>';
+        return;
+    }
+
+    const table = document.createElement('table');
+    table.className = 'users-table';
+    table.innerHTML = `
+        <thead><tr>
+            <th>Full Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th>
+        </tr></thead>
+    `;
+    const tbody = document.createElement('tbody');
+    filtered.forEach(v => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td class="name-cell">${v.full_name ?? '—'}</td>
+            <td class="username-cell">${v.username}</td>
+            <td>${v.email ?? '<span class="no-mission">—</span>'}</td>
+            <td>${v.phone ?? '<span class="no-mission">—</span>'}</td>
+            <td><span class="status-badge ${v.is_active ? 'active' : 'inactive'}">${v.is_active ? 'Active' : 'Inactive'}</span></td>
+            <td class="action-cell">
+                <button class="btn-edit" onclick="openEditViewerModal('${v.id}')">Edit</button>
+                <button class="btn-toggle ${v.is_active ? 'deactivate' : 'activate'}" onclick="toggleViewerActive('${v.id}', ${v.is_active})">${v.is_active ? 'Deactivate' : 'Activate'}</button>
+                <button class="btn-delete" onclick="deleteViewer('${v.id}')">Delete</button>
+            </td>
+        `;
+        tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    area.innerHTML = '';
+    area.appendChild(table);
+}
+
+// ── Add / Edit Admin Modal ────────────────────────────────────────────────────
 
 function openAddModal() {
     modalMode = 'add';
@@ -262,11 +326,104 @@ async function saveModal() {
         closeModal();
         loadUsers();
     } catch (e) {
-        errEl.textContent = 'Save failed: ' + e.message;
+        const msg = e.message || '';
+        errEl.textContent = msg.includes('duplicate key') || msg.includes('unique constraint')
+            ? 'Username "' + username + '" is already taken.'
+            : 'Save failed: ' + msg;
     } finally {
         saveBtn.disabled = false;
         saveBtn.innerHTML = '&#10003; Save';
     }
+}
+
+// ── Add / Edit Viewer Modal ───────────────────────────────────────────────────
+
+function openAddViewerModal() {
+    viewerModalMode = 'add';
+    editingViewerId = null;
+    document.getElementById('viewer-modal-title').textContent = 'Add Viewer';
+    ['vf-fullname', 'vf-username', 'vf-email', 'vf-phone', 'vf-password'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('viewer-password-label').textContent = 'Password';
+    document.getElementById('viewer-modal-error').textContent = '';
+    document.getElementById('viewer-modal').style.display = 'flex';
+}
+
+function openEditViewerModal(id) {
+    const v = allViewers.find(v => v.id === id);
+    if (!v) return;
+    viewerModalMode = 'edit';
+    editingViewerId = id;
+    document.getElementById('viewer-modal-title').textContent = 'Edit Viewer';
+    document.getElementById('vf-fullname').value = v.full_name ?? '';
+    document.getElementById('vf-username').value = v.username;
+    document.getElementById('vf-email').value = v.email ?? '';
+    document.getElementById('vf-phone').value = v.phone ?? '';
+    document.getElementById('vf-password').value = '';
+    document.getElementById('viewer-password-label').textContent = 'New Password (leave blank to keep)';
+    document.getElementById('viewer-modal-error').textContent = '';
+    document.getElementById('viewer-modal').style.display = 'flex';
+}
+
+function closeViewerModal() {
+    document.getElementById('viewer-modal').style.display = 'none';
+}
+
+async function saveViewerModal() {
+    const full_name = document.getElementById('vf-fullname').value.trim();
+    const username = document.getElementById('vf-username').value.trim();
+    const email = document.getElementById('vf-email').value.trim() || null;
+    const phone = document.getElementById('vf-phone').value.trim() || null;
+    const password = document.getElementById('vf-password').value;
+    const errEl = document.getElementById('viewer-modal-error');
+    const saveBtn = document.getElementById('viewer-modal-save-btn');
+
+    if (!full_name || !username) { errEl.textContent = 'Full name and username are required.'; return; }
+    if (viewerModalMode === 'add' && !password) { errEl.textContent = 'Password is required.'; return; }
+
+    const duplicate = allViewers.find(v => v.username === username && v.id !== editingViewerId);
+    if (duplicate) { errEl.textContent = 'Username "' + username + '" is already taken.'; return; }
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = 'Saving…';
+    errEl.textContent = '';
+
+    try {
+        const payload = { full_name, username, email, phone };
+        if (password) payload.password_hash = password;
+
+        if (viewerModalMode === 'add') {
+            payload.is_active = true;
+            await sb('union_users', { method: 'POST', body: JSON.stringify(payload) });
+        } else {
+            await sb('union_users?id=eq.' + editingViewerId, { method: 'PATCH', body: JSON.stringify(payload) });
+        }
+        closeViewerModal();
+        loadViewers();
+    } catch (e) {
+        const msg = e.message || '';
+        errEl.textContent = msg.includes('duplicate key') || msg.includes('unique constraint')
+            ? 'Username "' + username + '" is already taken.'
+            : 'Save failed: ' + msg;
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '&#10003; Save';
+    }
+}
+
+async function toggleViewerActive(id, currentState) {
+    try {
+        await sb('union_users?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ is_active: !currentState }) });
+        loadViewers();
+    } catch (e) { alert('Failed to update status: ' + e.message); }
+}
+
+async function deleteViewer(id) {
+    const v = allViewers.find(v => v.id === id);
+    if (!confirm('Delete "' + (v?.full_name ?? 'this viewer') + '"? This cannot be undone.')) return;
+    try {
+        await sb('union_users?id=eq.' + id, { method: 'DELETE' });
+        loadViewers();
+    } catch (e) { alert('Delete failed: ' + e.message); }
 }
 
 // ── Reset Password Modal ──────────────────────────────────────────────────────

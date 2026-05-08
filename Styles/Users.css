@@ -697,7 +697,7 @@ body {
     .users-main { padding: 20px; }
     .users-header { flex-direction: column; align-items: flex-start; }
     .table-top { flex-direction: column; align-items: flex-start; }
-    #search-input { width: 100%; }
+    #search-input, #viewer-search-input { width: 100%; }
     .modal-fields { grid-template-columns: 1fr; }
     .modal-header, .modal-body, .modal-footer { padding-left: 20px; padding-right: 20px; }
     .modal { width: 96vw; }
@@ -927,3 +927,53 @@ body.light-mode .reset-info {
     border-color: #bfdbfe;
     color: #1d4ed8;
 }
+
+/* ── Viewers section ─────────────────────────────────────────────────────── */
+.viewers-card { margin-top: 28px; }
+
+.section-label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #eef3ff;
+    margin: 0;
+}
+
+.viewer-top-right {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+#viewer-search-input {
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: #eef3ff;
+    font-size: 0.9rem;
+    width: 260px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#viewer-search-input:focus {
+    border-color: rgba(64,166,255,0.5);
+    box-shadow: 0 0 0 3px rgba(64,166,255,0.1);
+}
+
+#viewer-search-input::placeholder { color: rgba(238,243,255,0.28); }
+
+body.light-mode .section-label { color: #0f172a; }
+
+body.light-mode #viewer-search-input {
+    background: #f8fafc;
+    border-color: #cbd5e1;
+    color: #0f172a;
+}
+
+body.light-mode #viewer-search-input:focus {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+
+body.light-mode #viewer-search-input::placeholder { color: #cbd5e1; }

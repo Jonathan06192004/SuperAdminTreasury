@@ -40,6 +40,7 @@
                         <div class="role-filters">
                             <button class="role-filter-btn active" onclick="setRoleFilter(this, '')">All</button>
                             <button class="role-filter-btn" onclick="setRoleFilter(this, 'admin')">Admin</button>
+                            <button class="role-filter-btn" onclick="setRoleFilter(this, 'superadmin')">Super Admin</button>
                         </div>
                     </div>
                     <input type="search" id="search-input" placeholder="Search by name or username…" oninput="applySearch()" />
@@ -47,6 +48,23 @@
 
                 <div id="table-area">
                     <p class="placeholder-note">Loading users…</p>
+                </div>
+            </section>
+
+            <!-- Union Viewers Section -->
+            <section class="users-card viewers-card">
+                <div class="table-top">
+                    <div class="table-top-left">
+                        <span id="viewer-count" class="user-count">Loading…</span>
+                        <h2 class="section-label">Union Viewers</h2>
+                    </div>
+                    <div class="viewer-top-right">
+                        <input type="search" id="viewer-search-input" placeholder="Search viewers…" oninput="applyViewerSearch()" />
+                        <button class="add-user-btn" type="button" onclick="openAddViewerModal()">+ Add Viewer</button>
+                    </div>
+                </div>
+                <div id="viewer-table-area">
+                    <p class="placeholder-note">Loading viewers…</p>
                 </div>
             </section>
         </main>
@@ -96,6 +114,49 @@
             <div class="modal-footer">
                 <button type="button" class="modal-cancel" onclick="closeModal()">Cancel</button>
                 <button type="button" class="modal-save" id="modal-save-btn" onclick="saveModal()">&#10003; Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add / Edit Viewer Modal -->
+    <div class="modal-overlay" id="viewer-modal" style="display:none">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="viewer-modal-title">Add Viewer</h3>
+                <button type="button" class="modal-close" onclick="closeViewerModal()">&#x2715;</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-fields">
+                    <div class="field-group full-width">
+                        <label>Full Name</label>
+                        <input type="text" id="vf-fullname" placeholder="e.g. Juan dela Cruz" />
+                    </div>
+                    <div class="field-group">
+                        <label>Username</label>
+                        <input type="text" id="vf-username" placeholder="e.g. jdelacruz" />
+                    </div>
+                    <div class="field-group">
+                        <label>Email</label>
+                        <input type="email" id="vf-email" placeholder="e.g. juan@example.com" />
+                    </div>
+                    <div class="field-group">
+                        <label>Phone</label>
+                        <input type="text" id="vf-phone" placeholder="e.g. 09171234567" />
+                    </div>
+                    <div class="field-group full-width">
+                        <label id="viewer-password-label">Password</label>
+                        <div class="pw-wrapper">
+                            <input type="password" id="vf-password" placeholder="Enter password" />
+                            <button type="button" class="eye-btn" onclick="toggleEye('vf-password', this)" tabindex="-1">&#128065;</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-divider"></div>
+                <p class="modal-error" id="viewer-modal-error"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-cancel" onclick="closeViewerModal()">Cancel</button>
+                <button type="button" class="modal-save" id="viewer-modal-save-btn" onclick="saveViewerModal()">&#10003; Save</button>
             </div>
         </div>
     </div>
