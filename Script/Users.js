@@ -58,15 +58,6 @@ async function sbTreasury(path, options = {}) {
     return res.json();
 }
 
-function copyToken(token, btn) {
-    navigator.clipboard.writeText(token).then(() => {
-        const orig = btn.innerHTML;
-        btn.innerHTML = '&#10003;';
-        btn.style.color = '#28d1a7';
-        setTimeout(() => { btn.innerHTML = orig; btn.style.color = ''; }, 1500);
-    });
-}
-
 function toggleTablePw(spanId) {
     const span = document.getElementById(spanId);
     const btn = span.nextElementSibling;
@@ -81,12 +72,6 @@ function toggleEye(inputId, btn) {
     const isHidden = input.type === 'password';
     input.type = isHidden ? 'text' : 'password';
     btn.textContent = isHidden ? '🙈' : '👁';
-}
-
-function generateToken() {
-    const token = 'tk_' + Array.from(crypto.getRandomValues(new Uint8Array(24)))
-        .map(b => b.toString(16).padStart(2, '0')).join('');
-    document.getElementById('f-token').value = token;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -114,9 +99,8 @@ async function loadUsers() {
     area.innerHTML = '<p class="placeholder-note">Loading…</p>';
     try {
         const data = await sbUsers(
-            'users?select=id,username,full_name,role,mission_code,is_active,plain_password,token,created_at&order=created_at.asc'
+            'users?select=id,username,full_name,role,mission_code,is_active,plain_password,created_at&order=created_at.asc'
         );
-        // exclude viewers from admin table
         allUsers = data.filter(u => u.role !== 'viewer');
         renderTable();
     } catch (e) {
@@ -183,7 +167,6 @@ function renderTable() {
                 <th>Full Name</th>
                 <th>Username</th>
                 <th>Password</th>
-                <th>Token</th>
                 <th>Role</th>
                 <th>Mission</th>
                 <th>Status</th>
@@ -205,15 +188,6 @@ function renderTable() {
                     <span class="pw-text" id="${pwId}" data-pw="${u.plain_password ?? ''}">${u.plain_password ? '•'.repeat(Math.min(u.plain_password.length, 10)) : '—'}</span>
                     <button type="button" class="eye-btn-sm" onclick="toggleTablePw('${pwId}')" ${!u.plain_password ? 'disabled' : ''}>&#128065;</button>
                 </div>
-            </td>
-            <td class="token-cell">
-                ${u.token
-                    ? `<div class="token-display">
-                        <span class="token-text" title="${u.token}">${u.token.slice(0, 16)}…</span>
-                        <button type="button" class="copy-btn" onclick="copyToken('${u.token}', this)" title="Copy token">&#128203;</button>
-                       </div>`
-                    : '<span class="no-mission">—</span>'
-                }
             </td>
             <td><span class="role-badge ${u.role}">${isSuperAdmin ? 'Super Admin' : 'Admin'}</span></td>
             <td>${u.mission_code ? '<span class="mission-tag">' + u.mission_code + '</span>' : '<span class="no-mission">—</span>'}</td>
@@ -294,7 +268,6 @@ function openAddModal() {
     document.getElementById('f-username').value = '';
     document.getElementById('f-mission').value = '';
     document.getElementById('f-password').value = '';
-    document.getElementById('f-token').value = '';
     document.getElementById('password-label').textContent = 'Password';
     document.getElementById('modal-error').textContent = '';
     document.getElementById('modal').style.display = 'flex';
@@ -310,7 +283,6 @@ function openEditModal(id) {
     document.getElementById('f-username').value = u.username;
     document.getElementById('f-mission').value = u.mission_code ?? '';
     document.getElementById('f-password').value = '';
-    document.getElementById('f-token').value = u.token ?? '';
     document.getElementById('password-label').textContent = 'New Password (leave blank to keep)';
     document.getElementById('modal-error').textContent = '';
     document.getElementById('modal').style.display = 'flex';
@@ -325,7 +297,6 @@ async function saveModal() {
     const username = document.getElementById('f-username').value.trim();
     const mission_code = document.getElementById('f-mission').value || null;
     const plainPassword = document.getElementById('f-password').value;
-    const token = document.getElementById('f-token').value.trim() || null;
     const errEl = document.getElementById('modal-error');
     const saveBtn = document.getElementById('modal-save-btn');
 
@@ -340,7 +311,7 @@ async function saveModal() {
     errEl.textContent = '';
 
     try {
-        const payload = { full_name, username, role: 'admin', mission_code, token };
+        const payload = { full_name, username, role: 'admin', mission_code };
         if (plainPassword) payload.plain_password = plainPassword;
 
         if (modalMode === 'add') {
