@@ -129,6 +129,50 @@
                     </div>
                 </section>
 
+                <!-- Two-Factor Authentication -->
+                <section class="settings-card">
+                    <div class="card-section-label">&#128272; Two-Factor Authentication</div>
+                    <p class="card-desc">Protect your account with an authenticator app (Google Authenticator, Microsoft Authenticator, etc.).</p>
+
+                    <div class="tfa-status-row" id="tfaStatusRow">
+                        <div class="tfa-status-indicator" id="tfaStatusIndicator">
+                            <span class="tfa-status-dot" id="tfaStatusDot"></span>
+                            <span id="tfaStatusText">Loading…</span>
+                        </div>
+                        <div class="tfa-status-actions">
+                            <button class="save-btn" id="tfaSetupBtn" onclick="openTfaSetup()" style="display:none">&#43; Enable 2FA</button>
+                            <button class="save-btn tfa-view-btn" id="tfaViewBtn" onclick="viewTfaQr()" style="display:none">&#128247; View QR</button>
+                            <button class="danger-btn" id="tfaDisableBtn" onclick="disableTfa()" style="display:none">Disable 2FA</button>
+                        </div>
+                    </div>
+
+                    <!-- Setup flow (hidden until Enable clicked) -->
+                    <div class="tfa-setup-wrap hidden" id="tfaSetupWrap">
+                        <div class="tfa-setup-steps">
+                            <div class="tfa-step">
+                                <span class="tfa-step-num">1</span>
+                                <span>Open your authenticator app and scan the QR code below.</span>
+                            </div>
+                            <div class="tfa-step">
+                                <span class="tfa-step-num">2</span>
+                                <span>Enter the 6-digit code shown in the app to confirm setup.</span>
+                            </div>
+                        </div>
+                        <div class="tfa-qr-wrap">
+                            <img id="tfaQrImg" src="" alt="QR Code" style="width:200px;height:200px;border-radius:12px;border:4px solid #fff;display:none;" />
+                        </div>
+                        <p class="tfa-manual-label">Can&#39;t scan? Enter this key manually:</p>
+                        <p class="tfa-secret-text" id="tfaSecretDisplay"></p>
+                        <div class="tfa-confirm-row">
+                            <input type="text" id="tfaConfirmCode" inputmode="numeric" maxlength="6" placeholder="Enter 6-digit code" class="tfa-code-input" />
+                            <button class="save-btn" onclick="confirmTfaSetup()">&#10003; Confirm &amp; Enable</button>
+                        </div>
+                        <p class="settings-error" id="tfa-setup-error"></p>
+                        <p class="settings-success" id="tfa-setup-success"></p>
+                        <button class="tfa-cancel-btn" onclick="cancelTfaSetup()">Cancel</button>
+                    </div>
+                </section>
+
                 <!-- App Preferences -->
                 <section class="settings-card">
                     <div class="card-section-label">&#9881; Preferences</div>
@@ -200,6 +244,21 @@
         </main>
     </div>
 
+    <!-- Disable 2FA Confirmation Modal -->
+    <div class="modal-overlay hidden" id="disableTfaOverlay" onclick="closeDisableTfaModal()"></div>
+    <div class="disable-tfa-modal hidden" id="disableTfaModal">
+        <div class="disable-tfa-icon">&#128272;</div>
+        <h2 class="disable-tfa-title">Disable Two-Factor Auth?</h2>
+        <p class="disable-tfa-desc">Your account will no longer require a 6-digit code on login. This reduces your account security.</p>
+        <div class="disable-tfa-warning">
+            <span>&#9888;</span> This action cannot be undone without re-enabling 2FA.
+        </div>
+        <div class="logout-modal-actions">
+            <button class="logout-cancel-btn" onclick="closeDisableTfaModal()">Cancel</button>
+            <button class="logout-confirm-btn" onclick="confirmDisableTfa()">Yes, Disable 2FA</button>
+        </div>
+    </div>
+
     <!-- Logout Confirmation Modal -->
     <div class="modal-overlay hidden" id="logoutOverlay" onclick="closeLogoutModal()"></div>
     <div class="logout-modal hidden" id="logoutModal">
@@ -212,6 +271,7 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@9.3.6/dist/otpauth.umd.min.js"></script>
     <script src="../Script/auth.js"></script>
     <script src="../Script/Settings.js"></script>
 </body>

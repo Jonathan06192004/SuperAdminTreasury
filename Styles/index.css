@@ -280,3 +280,88 @@ button[type="submit"]:disabled {
     .login-card { padding: 40px 30px 36px; border-radius: 22px; }
     .login-card h1 { font-size: 2rem; }
 }
+
+/* ── 2FA step ────────────────────────────────────────────────────────────── */
+.hidden { display: none !important; }
+
+#step-2fa { text-align: center; }
+
+.tfa-icon {
+    font-size: 2.6rem;
+    margin-bottom: 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.12);
+    border: 1px solid rgba(37, 99, 235, 0.25);
+}
+
+#step-2fa h1 { font-size: 2rem; margin-bottom: 10px; }
+#step-2fa .login-subtitle { margin-bottom: 32px; }
+
+.tfa-code-wrap { margin-bottom: 4px; }
+
+.tfa-code-wrap input {
+    width: 100%;
+    padding: 18px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(255,255,255,0.09);
+    background: rgba(255,255,255,0.04);
+    color: #eef3ff;
+    font-size: 2rem;
+    font-family: 'Montserrat', monospace;
+    font-weight: 800;
+    letter-spacing: 0.35em;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.tfa-code-wrap input:focus {
+    border-color: rgba(64, 166, 255, 0.5);
+    background: rgba(64, 166, 255, 0.06);
+    box-shadow: 0 0 0 3px rgba(64, 166, 255, 0.1);
+}
+
+#tfa-verify-btn {
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 50%, #1e40af 100%);
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(37, 99, 235, 0.4);
+    margin-top: 20px;
+}
+
+#tfa-verify-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 28px rgba(37, 99, 235, 0.5);
+}
+
+.tfa-back-btn {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 14px;
+    background: transparent;
+    color: rgba(238,243,255,0.45);
+    font-family: inherit;
+    font-size: 0.82rem;
+    cursor: pointer;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tfa-back-btn:hover { color: rgba(238,243,255,0.8); border-color: rgba(255,255,255,0.2); }

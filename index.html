@@ -6,26 +6,45 @@
     <title>SuperAdmin Treasury | Login</title>
     <link rel="stylesheet" href="Styles/index.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@9.3.6/dist/otpauth.umd.min.js"></script>
 </head>
 <body>
     <div class="login-page">
         <div class="login-card">
             <div class="login-brand">&#128274; SuperAdmin Treasury</div>
-            <h1>Welcome Back</h1>
-            <p class="login-subtitle">Sign in with your super admin credentials.</p>
-            <form id="loginForm">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" placeholder="Enter username" required />
 
-                <label for="password">Password</label>
-                <div class="pw-wrap">
-                    <input type="password" id="password" name="password" placeholder="Enter password" required />
-                    <button type="button" class="eye-toggle" onclick="toggleLoginPw(this)">&#128065;</button>
+            <!-- Step 1: credentials -->
+            <div id="step-login">
+                <h1>Welcome Back</h1>
+                <p class="login-subtitle">Sign in with your super admin credentials.</p>
+                <form id="loginForm">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required />
+
+                    <label for="password">Password</label>
+                    <div class="pw-wrap">
+                        <input type="password" id="password" name="password" placeholder="Enter password" required />
+                        <button type="button" class="eye-toggle" onclick="toggleLoginPw(this)">&#128065;</button>
+                    </div>
+
+                    <p class="login-error" id="login-error"></p>
+                    <button type="submit">Sign In</button>
+                </form>
+            </div>
+
+            <!-- Step 2: 2FA code -->
+            <div id="step-2fa" class="hidden">
+                <div class="tfa-icon">&#128272;</div>
+                <h1>Two-Factor Auth</h1>
+                <p class="login-subtitle">Open your authenticator app and enter the 6-digit code for this account.</p>
+                <div class="tfa-code-wrap">
+                    <input type="text" id="tfa-code" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" />
                 </div>
+                <p class="login-error" id="tfa-error"></p>
+                <button type="button" id="tfa-verify-btn" onclick="verifyTfa()">Verify Code</button>
+                <button type="button" class="tfa-back-btn" onclick="backToLogin()">&#8592; Back</button>
+            </div>
 
-                <p class="login-error" id="login-error"></p>
-                <button type="submit">Sign In</button>
-            </form>
             <p class="login-footer-note">SPUC Treasury &mdash; SuperAdmin Portal</p>
         </div>
     </div>

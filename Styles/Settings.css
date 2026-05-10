@@ -906,3 +906,248 @@ body.light-mode .logout-cancel-btn:hover { background: #e2e8f0; color: #1e293b; 
 
 /* Light mode — scrollbar */
 body.light-mode .settings-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); }
+
+/* ── Two-Factor Authentication ───────────────────────────────────────────── */
+.tfa-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+}
+
+.tfa-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #eef3ff;
+}
+
+.tfa-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.tfa-dot-on  { background: #28d1a7; box-shadow: 0 0 8px #28d1a7; }
+.tfa-dot-off { background: rgba(238,243,255,0.25); }
+
+.tfa-status-actions { display: flex; gap: 10px; }
+
+/* Setup flow */
+.tfa-setup-wrap {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.tfa-setup-steps { display: flex; flex-direction: column; gap: 10px; }
+
+.tfa-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    font-size: 0.85rem;
+    color: rgba(238,243,255,0.7);
+    line-height: 1.5;
+}
+
+.tfa-step-num {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(64,166,255,0.15);
+    border: 1px solid rgba(64,166,255,0.3);
+    color: #7ec8ff;
+    font-size: 0.72rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.tfa-qr-wrap {
+    display: flex;
+    justify-content: center;
+}
+
+.tfa-qr-wrap canvas {
+    border-radius: 12px;
+    border: 4px solid #fff;
+    display: block;
+}
+
+.tfa-manual-label {
+    font-size: 0.75rem;
+    color: rgba(238,243,255,0.4);
+    text-align: center;
+}
+
+.tfa-secret-text {
+    font-family: monospace;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #7ec8ff;
+    background: rgba(64,166,255,0.08);
+    border: 1px solid rgba(64,166,255,0.2);
+    border-radius: 8px;
+    padding: 10px 14px;
+    text-align: center;
+    letter-spacing: 0.08em;
+    word-break: break-all;
+}
+
+.tfa-confirm-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.tfa-code-input {
+    flex: 1;
+    min-width: 140px;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.06);
+    color: #eef3ff;
+    font-size: 1.1rem;
+    font-family: 'Montserrat', monospace;
+    font-weight: 700;
+    letter-spacing: 0.25em;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.tfa-code-input:focus {
+    border-color: rgba(64,166,255,0.5);
+    box-shadow: 0 0 0 3px rgba(64,166,255,0.12);
+}
+
+.tfa-cancel-btn {
+    background: none;
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 10px;
+    color: rgba(238,243,255,0.4);
+    font-family: inherit;
+    font-size: 0.82rem;
+    padding: 9px 18px;
+    cursor: pointer;
+    align-self: flex-start;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.tfa-cancel-btn:hover { color: rgba(238,243,255,0.8); border-color: rgba(255,255,255,0.2); }
+
+/* Light mode */
+body.light-mode .tfa-status-row { background: #f8fafc; border-color: #e2e8f0; }
+body.light-mode .tfa-status-indicator { color: #0f172a; }
+body.light-mode .tfa-dot-off { background: #cbd5e1; }
+body.light-mode .tfa-setup-wrap { border-top-color: #e2e8f0; }
+body.light-mode .tfa-step { color: #475569; }
+body.light-mode .tfa-step-num { background: #dbeafe; border-color: #bfdbfe; color: #1d4ed8; }
+body.light-mode .tfa-manual-label { color: #94a3b8; }
+body.light-mode .tfa-secret-text { background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; }
+body.light-mode .tfa-code-input { background: #f8fafc; border-color: #cbd5e1; color: #1e293b; }
+body.light-mode .tfa-code-input:focus { border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.12); }
+body.light-mode .tfa-cancel-btn { border-color: #e2e8f0; color: #94a3b8; }
+body.light-mode .tfa-cancel-btn:hover { color: #475569; border-color: #94a3b8; }
+
+/* ── QR canvas fix (force white bg so it's visible on dark theme) ── */
+.tfa-qr-wrap canvas { background: #fff !important; }
+
+/* ── View QR button ── */
+.tfa-view-btn {
+    background: linear-gradient(135deg, rgba(64,166,255,0.15), rgba(40,209,167,0.1));
+    border: 1px solid rgba(64,166,255,0.3);
+    color: #7ec8ff;
+}
+.tfa-view-btn:hover { background: rgba(64,166,255,0.25); box-shadow: 0 4px 14px rgba(64,166,255,0.2); }
+body.light-mode .tfa-view-btn { background: #dbeafe; border-color: #bfdbfe; color: #1d4ed8; }
+body.light-mode .tfa-view-btn:hover { background: #bfdbfe; }
+
+/* ── Disable 2FA Modal ───────────────────────────────────────────────────── */
+.disable-tfa-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 500;
+    background: #0d1f3c;
+    border: 1px solid rgba(255,90,90,0.3);
+    border-radius: 20px;
+    padding: 36px 32px 28px;
+    width: 380px;
+    max-width: calc(100vw - 32px);
+    text-align: center;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    animation: modalIn 0.2s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+.disable-tfa-icon {
+    font-size: 1.8rem;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: rgba(255,90,90,0.12);
+    border: 1px solid rgba(255,90,90,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+}
+
+.disable-tfa-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #eef3ff;
+    margin-bottom: 8px;
+}
+
+.disable-tfa-desc {
+    font-size: 0.85rem;
+    color: rgba(238,243,255,0.5);
+    line-height: 1.55;
+    margin-bottom: 16px;
+}
+
+.disable-tfa-warning {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #ffb347;
+    background: rgba(255,179,71,0.08);
+    border: 1px solid rgba(255,179,71,0.2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    margin-bottom: 24px;
+}
+
+body.light-mode .disable-tfa-modal {
+    background: #fff;
+    border-color: #fecaca;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.15);
+}
+body.light-mode .disable-tfa-title { color: #0f172a; }
+body.light-mode .disable-tfa-desc { color: #64748b; }
+body.light-mode .disable-tfa-warning {
+    color: #b45309;
+    background: #fffbeb;
+    border-color: #fde68a;
+}

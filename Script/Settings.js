@@ -18,6 +18,12 @@ async function sb(path, options = {}) {
     return res.json();
 }
 
+function renderQr(uri) {
+    const img = document.getElementById('tfaQrImg');
+    img.src = 'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(uri);
+    img.style.display = 'block';
+}
+
 // ── Load profile ──────────────────────────────────────────────────────────────
 
 function loadProfile() {
@@ -49,7 +55,6 @@ async function changePassword() {
 
     const user = getSession();
     try {
-        // Verify current password
         const data = await sb('users?id=eq.' + encodeURIComponent(user.id) + '&select=plain_password');
         if (!data[0] || data[0].plain_password !== current) {
             errEl.textContent = 'Current password is incorrect.';
@@ -106,7 +111,6 @@ function toggleTheme() {
     applyTheme(next);
 }
 
-// Apply saved theme on load
 applyTheme(localStorage.getItem('theme') || 'dark');
 
 // ── Logout ────────────────────────────────────────────────────────────────────
@@ -142,3 +146,174 @@ function togglePw(id, btn) {
 }
 
 loadProfile();
+
+// ── Two-Factor Authentication ─────────────────────────────────────────────
+
+let _tfaNewSecret = null;
+
+async function loadTfaStatus() {
+    const user = getSession();
+    if (!user) return;
+    try {
+        const data = await sb('users?id=eq.' + encodeURIComponent(user.id) + '&select=two_fa_enabled,totp_secret');
+        const row = data[0];
+        const enabled = row && row.two_fa_enabled && row.totp_secret;
+        const dot = document.getElementById('tfaStatusDot');
+        const text = document.getElementById('tfaStatusText');
+        const setupBtn = document.getElementById('tfaSetupBtn');
+        const viewBtn = document.getElementById('tfaViewBtn');
+        const disableBtn = document.getElementById('tfaDisableBtn');
+
+        if (enabled) {
+            dot.className = 'tfa-status-dot tfa-dot-on';
+            text.textContent = '2FA is enabled';
+            setupBtn.style.display = 'none';
+            viewBtn.style.display = '';
+            disableBtn.style.display = '';
+        } else {
+            dot.className = 'tfa-status-dot tfa-dot-off';
+            text.textContent = '2FA is disabled';
+            setupBtn.style.display = '';
+            viewBtn.style.display = 'none';
+            disableBtn.style.display = 'none';
+        }
+    } catch (e) {
+        document.getElementById('tfaStatusText').textContent = 'Could not load 2FA status.';
+    }
+}
+
+function openTfaSetup() {
+    const user = getSession();
+    if (!user) return;
+
+    const secret = new OTPAuth.Secret({ size: 20 });
+    _tfaNewSecret = secret.base32;
+
+    const totp = new OTPAuth.TOTP({
+        issuer: 'SPUC Treasury',
+        label: user.username || 'SuperAdmin',
+        algorithm: 'SHA1',
+        digits: 6,
+        period: 30,
+        secret: secret
+    });
+
+    document.getElementById('tfaSecretDisplay').textContent = _tfaNewSecret;
+    document.getElementById('tfaConfirmCode').value = '';
+    document.getElementById('tfa-setup-error').textContent = '';
+    document.getElementById('tfa-setup-success').textContent = '';
+    document.getElementById('tfaSetupWrap').classList.remove('hidden');
+    document.getElementById('tfaSetupBtn').style.display = 'none';
+
+    renderQr(totp.toString());
+}
+
+async function viewTfaQr() {
+    const user = getSession();
+    if (!user) return;
+    try {
+        const data = await sb('users?id=eq.' + encodeURIComponent(user.id) + '&select=totp_secret');
+        const secret = data[0]?.totp_secret;
+        if (!secret) return;
+
+        const totp = new OTPAuth.TOTP({
+            issuer: 'SPUC Treasury',
+            label: user.username || 'SuperAdmin',
+            algorithm: 'SHA1',
+            digits: 6,
+            period: 30,
+            secret: OTPAuth.Secret.fromBase32(secret)
+        });
+
+        document.getElementById('tfaSecretDisplay').textContent = secret;
+        document.getElementById('tfaConfirmCode').value = '';
+        document.getElementById('tfa-setup-error').textContent = '';
+        document.getElementById('tfa-setup-success').textContent = '';
+        document.getElementById('tfaSetupWrap').classList.remove('hidden');
+        document.getElementById('tfaViewBtn').style.display = 'none';
+        document.getElementById('tfaDisableBtn').style.display = 'none';
+
+        renderQr(totp.toString());
+    } catch (e) {
+        alert('Could not load QR code: ' + e.message);
+    }
+}
+
+function cancelTfaSetup() {
+    _tfaNewSecret = null;
+    document.getElementById('tfaSetupWrap').classList.add('hidden');
+    document.getElementById('tfaQrImg').style.display = 'none';
+    loadTfaStatus();
+}
+
+async function confirmTfaSetup() {
+    const code = document.getElementById('tfaConfirmCode').value.trim();
+    const errEl = document.getElementById('tfa-setup-error');
+    const okEl = document.getElementById('tfa-setup-success');
+    errEl.textContent = '';
+    okEl.textContent = '';
+
+    if (!code || code.length !== 6) {
+        errEl.textContent = 'Enter the 6-digit code from your authenticator app.';
+        return;
+    }
+    if (!_tfaNewSecret) {
+        errEl.textContent = 'Setup session expired. Please try again.';
+        return;
+    }
+
+    try {
+        const totp = new OTPAuth.TOTP({
+            secret: OTPAuth.Secret.fromBase32(_tfaNewSecret),
+            algorithm: 'SHA1',
+            digits: 6,
+            period: 30
+        });
+
+        const delta = totp.validate({ token: code, window: 1 });
+        if (delta === null) {
+            errEl.textContent = 'Incorrect code. Make sure your app is synced and try again.';
+            return;
+        }
+
+        const user = getSession();
+        await sb('users?id=eq.' + encodeURIComponent(user.id), {
+            method: 'PATCH',
+            body: JSON.stringify({ totp_secret: _tfaNewSecret, two_fa_enabled: true })
+        });
+
+        okEl.textContent = '✓ 2FA enabled successfully.';
+        _tfaNewSecret = null;
+        document.getElementById('tfaSetupWrap').classList.add('hidden');
+        document.getElementById('tfaQrImg').style.display = 'none';
+        loadTfaStatus();
+    } catch (e) {
+        errEl.textContent = 'Failed to enable 2FA: ' + e.message;
+    }
+}
+
+async function disableTfa() {
+    document.getElementById('disableTfaOverlay').classList.remove('hidden');
+    document.getElementById('disableTfaModal').classList.remove('hidden');
+}
+
+function closeDisableTfaModal() {
+    document.getElementById('disableTfaOverlay').classList.add('hidden');
+    document.getElementById('disableTfaModal').classList.add('hidden');
+}
+
+async function confirmDisableTfa() {
+    closeDisableTfaModal();
+    const user = getSession();
+    try {
+        await sb('users?id=eq.' + encodeURIComponent(user.id), {
+            method: 'PATCH',
+            body: JSON.stringify({ two_fa_enabled: false, totp_secret: null })
+        });
+        loadTfaStatus();
+    } catch (e) {
+        alert('Failed to disable 2FA: ' + e.message);
+    }
+}
+
+loadTfaStatus();
