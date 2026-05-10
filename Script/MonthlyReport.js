@@ -162,9 +162,10 @@ function mrZoom(dir) {
 function tickClock() {
     const now = new Date();
     const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const date = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+    const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
+    const date = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
     document.getElementById('mrClockTime').textContent = time;
-    document.getElementById('mrClockDate').textContent = date;
+    document.getElementById('mrClockDate').innerHTML = `${weekday}<br>${date}`;
 }
 
 /* ── CRUD Modal ─────────────────────────────────────────────────────────── */
