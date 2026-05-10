@@ -332,7 +332,7 @@
 }
 
 .fs-table thead .fs-th.center {
-    text-align: right;
+    text-align: center;
 }
 
 .fs-cf-table thead .fs-th:first-child {
@@ -396,6 +396,20 @@
     background: #eef4ff;
 }
 
+.fs-note-arrow {
+    font-size: 0.7rem;
+    font-weight: 900;
+    color: var(--fs-gold-dim);
+    margin-left: 6px;
+    opacity: 0.7;
+    vertical-align: middle;
+}
+
+.fs-tr-note:hover .fs-note-arrow {
+    opacity: 1;
+    color: var(--fs-gold);
+}
+
 .fs-tr-subtotal td {
     font-family: 'Montserrat', sans-serif;
     font-weight: 800;
@@ -428,7 +442,7 @@
 }
 
 .fs-td-num {
-    text-align: right;
+    text-align: center;
     font-variant-numeric: tabular-nums lining-nums;
     white-space: nowrap;
 }
@@ -472,7 +486,7 @@
 .fs-panel#tab-income .fs-is-table td.fs-td-num,
 .fs-panel#tab-income .fs-is-table td.fs-is-amt {
     border-left: 1px solid rgba(80, 120, 180, 0.35);
-    text-align: right;
+    text-align: center;
 }
 
 .fs-panel#tab-income .fs-is-table td.fs-td-indent,
@@ -601,7 +615,7 @@
     font-size: 1.05rem;
     letter-spacing: 0.03em;
     color: var(--fs-gold) !important;
-    text-align: right;
+    text-align: center;
     padding: 16px 14px !important;
 }
 
@@ -1103,16 +1117,16 @@
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    width: min(92vw, 640px);
-    max-height: 85vh;
+    width: min(96vw, 860px);
+    max-height: 88vh;
     overflow: hidden;
     display: flex;
     flex-direction: column;
     background: #ffffff;
     border: 1px solid rgba(12, 35, 61, 0.2);
-    border-radius: 14px;
+    border-radius: 16px;
     z-index: 122;
-    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+    box-shadow: 0 32px 100px rgba(0, 0, 0, 0.55);
 }
 
 .ar-sda-modal {
@@ -1120,7 +1134,7 @@
 }
 
 .ar-sda-modal--wide {
-    width: min(92vw, 720px);
+    width: min(96vw, 960px);
 }
 
 .cash-note-header {
@@ -1191,7 +1205,7 @@
 
 .cash-note-col-header {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(104px, 22%) minmax(104px, 22%);
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 24%) minmax(120px, 24%);
     align-items: center;
     gap: 10px;
     padding: 12px 18px;
@@ -1222,7 +1236,7 @@
 
 .cash-note-col-label {
     color: #ffffff;
-    text-align: right;
+    text-align: center;
 }
 
 .cash-note-body-wrap {
@@ -1247,7 +1261,7 @@
 }
 
 .cn-td-num {
-    text-align: right;
+    text-align: center;
     font-variant-numeric: tabular-nums lining-nums;
     white-space: nowrap;
 }
@@ -1334,6 +1348,7 @@
 
 #sdaSwpucCrudModal {
     z-index: 126;
+    width: min(94vw, 560px) !important;
 }
 
 .sda-sw-tabs {
@@ -1414,7 +1429,7 @@
 .fs-td-num-bs-dot .fs-bs-amt-wrap {
     display: inline-flex;
     align-items: center;
-    justify-content: flex-end;
+    justify-content: center;
     gap: 10px;
     width: 100%;
 }

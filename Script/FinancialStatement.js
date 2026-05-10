@@ -123,7 +123,7 @@ function num(v) {
 
 function formatMoney(raw) {
     const v = num(raw);
-    if (v === null) return '—';
+    if (v === null) return '';
     const abs = Math.abs(v);
     const formatted = abs.toLocaleString('en-PH', {
         minimumFractionDigits: 2,
@@ -137,7 +137,7 @@ function formatMoney(raw) {
 /** Income statement & KPIs — peso prefix */
 function formatMoneyPeso(raw) {
     const core = formatMoney(raw);
-    if (core === '—') return '—';
+    if (core === '') return '';
     return '₱' + core;
 }
 
@@ -161,20 +161,20 @@ function formatCompactM(raw) {
 function formatMonthsAsPctOfRecommended(monthsVal, recommendedVal) {
     const m = num(monthsVal);
     const r = num(recommendedVal);
-    if (m === null || r === null || r === 0) return '—';
+    if (m === null || r === null || r === 0) return '';
     return ((m / r) * 100).toFixed(2) + '%';
 }
 
 function formatMonths(raw) {
     const v = num(raw);
-    if (v === null) return '—';
+    if (v === null) return '';
     const rounded = Math.round(v * 10) / 10;
     return rounded + ' MONTHS';
 }
 
 function formatMonthDelta(raw) {
     const v = num(raw);
-    if (v === null) return '—';
+    if (v === null) return '';
     const abs = Math.abs(v);
     const formatted = abs.toFixed(2);
     if (v < 0) return '(' + formatted + ') MO.';
@@ -480,6 +480,8 @@ function renderBalanceSheet() {
                 (useDot ? bsAmountCell(r.cur, r.dot) : formatMoney(r.cur)) +
                 '</td>';
 
+            const labelText = escapeHtml(r.label) + (r.note ? ' <span class="fs-note-arrow">&gt;</span>' : '');
+
             return (
                 '<tr class="' +
                 cls +
@@ -489,7 +491,7 @@ function renderBalanceSheet() {
                 '<td class="' +
                 indent +
                 '">' +
-                escapeHtml(r.label) +
+                labelText +
                 '</td>' +
                 prevCell +
                 curCell +
