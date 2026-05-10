@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Monthly Report</title>
+    <link rel="icon" type="image/png" href="../Assets/logo.png" />
     <link rel="stylesheet" href="../Styles/Dashboard.css" />
     <link rel="stylesheet" href="../Styles/MonthlyReport.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet"/>
@@ -15,7 +16,12 @@
         </button>
         <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
         <aside class="dashboard-sidebar" id="sidebar">
-        <div class="brand"><h2>SuperAdmin</h2><span>Treasury</span></div>
+        <a href="Dashboard.html" class="brand">
+            <img src="../Assets/logo.png" alt="Logo" class="brand-logo" />
+            <div>
+                <h2>SuperAdmin</h2><span>Treasury</span>
+            </div>
+        </a>
         <nav class="sidebar-nav">
             <a href="Dashboard.html">Dashboard</a>
             <a href="Users.html">Users</a>
@@ -24,7 +30,7 @@
             <a href="Update.html">Update</a>
         </nav>
         <nav class="sidebar-nav sidebar-nav-bottom">
-            <a href="Settings.html">Settings</a>
+            <a href="Settings.html"><span class="nav-icon">&#9881;</span> Settings</a>
         </nav>
     </aside>
 

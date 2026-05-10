@@ -35,6 +35,36 @@ function loadProfile() {
     document.getElementById('avatar-initials').textContent = initials;
     document.getElementById('acct-avatar-initials').textContent = initials;
     document.getElementById('acct-trigger-name').textContent = user.full_name.split(' ')[0];
+    document.getElementById('acct-menu-name').textContent = user.full_name;
+    document.getElementById('s-fullname').value = user.full_name || '';
+    document.getElementById('s-username').value = user.username || '';
+}
+
+// ── Update profile ────────────────────────────────────────────────────────────
+
+async function updateProfile() {
+    const fullName = document.getElementById('s-fullname').value.trim();
+    const username = document.getElementById('s-username').value.trim();
+    const errEl = document.getElementById('profile-error');
+    const okEl = document.getElementById('profile-success');
+    errEl.textContent = '';
+    okEl.textContent = '';
+
+    if (!fullName || !username) { errEl.textContent = 'Name and username are required.'; return; }
+
+    const user = getSession();
+    try {
+        await sb('users?id=eq.' + encodeURIComponent(user.id), {
+            method: 'PATCH',
+            body: JSON.stringify({ full_name: fullName, username: username })
+        });
+        const updated = { ...user, full_name: fullName, username: username };
+        sessionStorage.setItem('superadmin_session', JSON.stringify(updated));
+        loadProfile();
+        okEl.textContent = '✓ Profile updated successfully.';
+    } catch (e) {
+        errEl.textContent = 'Failed: ' + e.message;
+    }
 }
 
 // ── Change password ───────────────────────────────────────────────────────────

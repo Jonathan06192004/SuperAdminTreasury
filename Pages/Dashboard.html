@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Dashboard</title>
+    <link rel="icon" type="image/png" href="../Assets/logo.png" />
     <link rel="stylesheet" href="../Styles/Dashboard.css" />
 </head>
 <body>
@@ -13,10 +14,13 @@
         </button>
         <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
         <aside class="dashboard-sidebar" id="sidebar">
-            <div class="brand">
-                <h2>SuperAdmin</h2>
-                <span>Treasury</span>
-            </div>
+            <a href="Dashboard.html" class="brand">
+                <img src="../Assets/logo.png" alt="Logo" class="brand-logo" />
+                <div>
+                    <h2>SuperAdmin</h2>
+                    <span>Treasury</span>
+                </div>
+            </a>
             <nav class="sidebar-nav">
                 <a class="active" href="Dashboard.html">Dashboard</a>
                 <a href="Users.html">Users</a>
@@ -25,47 +29,100 @@
                 <a href="Update.html">Update</a>
             </nav>
             <nav class="sidebar-nav sidebar-nav-bottom">
-                <a href="Settings.html">Settings</a>
+                <a href="Settings.html"><span class="nav-icon">&#9881;</span> Settings</a>
             </nav>
         </aside>
 
         <main class="dashboard-main">
+
+            <!-- Header -->
             <header class="dashboard-header">
-                <div>
+                <div class="header-left">
+                    <div class="header-badge">&#128274; SuperAdmin Portal</div>
                     <h1>Dashboard</h1>
                     <p id="header-greeting">Welcome back.</p>
+                </div>
+                <div class="header-right">
+                    <div class="header-clock">
+                        <div class="clock-time" id="clock-time">--:--</div>
+                        <div class="clock-date" id="clock-date">---</div>
+                    </div>
                 </div>
             </header>
 
             <!-- Stat Cards -->
             <section class="dashboard-cards">
-                <article class="stat-card">
-                    <h3>Total Admins</h3>
-                    <p id="stat-total">—</p>
+                <article class="stat-card stat-total">
+                    <div class="stat-icon">&#128100;</div>
+                    <div class="stat-body">
+                        <h3>Total Admins</h3>
+                        <p id="stat-total">—</p>
+                    </div>
+                    <div class="stat-glow stat-glow-blue"></div>
                 </article>
-                <article class="stat-card active-card">
-                    <h3>Active Admins</h3>
-                    <p id="stat-active">—</p>
+                <article class="stat-card stat-active">
+                    <div class="stat-icon">&#9679;</div>
+                    <div class="stat-body">
+                        <h3>Active Admins</h3>
+                        <p id="stat-active">—</p>
+                    </div>
+                    <div class="stat-glow stat-glow-green"></div>
                 </article>
-                <article class="stat-card inactive-card">
-                    <h3>Inactive Admins</h3>
-                    <p id="stat-inactive">—</p>
+                <article class="stat-card stat-inactive">
+                    <div class="stat-icon">&#9675;</div>
+                    <div class="stat-body">
+                        <h3>Inactive Admins</h3>
+                        <p id="stat-inactive">—</p>
+                    </div>
+                    <div class="stat-glow stat-glow-red"></div>
                 </article>
             </section>
 
+            <!-- Quick Actions -->
+            <section class="quick-actions">
+                <a href="Users.html" class="qa-btn">
+                    <span class="qa-icon">&#43;</span>
+                    <span>Add User</span>
+                </a>
+                <a href="Update.html" class="qa-btn">
+                    <span class="qa-icon">&#9998;</span>
+                    <span>Update Ledger</span>
+                </a>
+                <a href="FinancialStatement.html" class="qa-btn">
+                    <span class="qa-icon">&#128196;</span>
+                    <span>Financial Statement</span>
+                </a>
+                <a href="MonthlyReport.html" class="qa-btn">
+                    <span class="qa-icon">&#128202;</span>
+                    <span>Monthly Report</span>
+                </a>
+            </section>
+
+            <!-- Panel -->
             <section class="dashboard-panel">
-                <!-- Recent Activity -->
                 <div class="panel-section">
-                    <h2>Recent Activity</h2>
+                    <div class="panel-header">
+                        <div class="panel-title-wrap">
+                            <span class="panel-icon">&#128336;</span>
+                            <h2>Recent Activity</h2>
+                        </div>
+                        <span class="panel-badge" id="activity-count"></span>
+                    </div>
                     <div id="activity-area"><p class="loading-note">Loading…</p></div>
                 </div>
 
-                <!-- Active Users -->
                 <div class="panel-section">
-                    <h2>Active Admins</h2>
+                    <div class="panel-header">
+                        <div class="panel-title-wrap">
+                            <span class="panel-icon">&#9679;</span>
+                            <h2>Active Admins</h2>
+                        </div>
+                        <span class="panel-badge panel-badge-green" id="active-count"></span>
+                    </div>
                     <div id="active-area"><p class="loading-note">Loading…</p></div>
                 </div>
             </section>
+
         </main>
     </div>
 
@@ -80,6 +137,20 @@
             b.classList.toggle('visible');
             t.classList.toggle('open');
         }
+
+        // Live clock
+        function updateClock() {
+            const now = new Date();
+            const h = String(now.getHours()).padStart(2,'0');
+            const m = String(now.getMinutes()).padStart(2,'0');
+            document.getElementById('clock-time').textContent = h + ':' + m;
+            const days = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+            const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+            document.getElementById('clock-date').textContent =
+                days[now.getDay()] + ', ' + months[now.getMonth()] + ' ' + now.getDate() + ' ' + now.getFullYear();
+        }
+        updateClock();
+        setInterval(updateClock, 10000);
     </script>
 </body>
 </html>

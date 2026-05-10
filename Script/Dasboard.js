@@ -52,9 +52,13 @@ async function loadDashboard() {
 
         // Recent activity — last 8 users by created_at (newest first, skip superadmin)
         renderActivity(admins.slice(0, 8));
+        const actBadge = document.getElementById('activity-count');
+        if (actBadge) actBadge.textContent = Math.min(admins.length, 8);
 
         // Active admins list
         renderActiveUsers(active);
+        const actvBadge = document.getElementById('active-count');
+        if (actvBadge) actvBadge.textContent = active.length;
 
     } catch (e) {
         document.getElementById('activity-area').innerHTML =
