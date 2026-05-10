@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Monthly Report</title>
+    <link rel="stylesheet" href="../Styles/Dashboard.css" />
+    <link rel="stylesheet" href="../Styles/MonthlyReport.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet"/>
+</head>
+<body>
+<div class="dashboard-shell">
+    <aside class="dashboard-sidebar">
+        <div class="brand"><h2>SuperAdmin</h2><span>Treasury</span></div>
+        <nav class="sidebar-nav">
+            <a href="Dashboard.html">Dashboard</a>
+            <a href="Users.html">Users</a>
+            <a href="FinancialStatement.html">Financial Statement</a>
+            <a href="MonthlyReport.html" class="active">Monthly Report</a>
+            <a href="Update.html">Update</a>
+        </nav>
+        <nav class="sidebar-nav sidebar-nav-bottom">
+            <a href="Settings.html">Settings</a>
+        </nav>
+    </aside>
+
+    <main class="dashboard-main mr-main">
+
+        <!-- Top Bar -->
+        <div class="mr-topbar">
+            <div class="mr-topbar-left">
+                <span class="mr-title">MONTHLY REPORT</span>
+                <span class="mr-period-badge" id="mrPeriodBadge">APRIL 2026</span>
+            </div>
+            <div class="mr-topbar-right">
+                <label class="mr-ctrl-label">YEAR:</label>
+                <select class="mr-select" id="mrYear" onchange="loadReport()">
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                </select>
+                <label class="mr-ctrl-label">MONTH:</label>
+                <select class="mr-select" id="mrMonth" onchange="loadReport()">
+                    <option value="1">January</option><option value="2">February</option>
+                    <option value="3">March</option><option value="4" selected>April</option>
+                    <option value="5">May</option><option value="6">June</option>
+                    <option value="7">July</option><option value="8">August</option>
+                    <option value="9">September</option><option value="10">October</option>
+                    <option value="11">November</option><option value="12">December</option>
+                </select>
+                <button class="mr-zoom-btn" onclick="mrZoom(-1)">&#8722;</button>
+                <span class="mr-zoom-label" id="mrZoomLabel">100%</span>
+                <button class="mr-zoom-btn" onclick="mrZoom(1)">&#43;</button>
+                <button class="mr-edit-btn" onclick="openMrCrud()">&#9998; EDIT / ADD</button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div class="mr-body">
+
+            <!-- Full-width Table with institution column built-in -->
+            <div class="mr-table-wrap">
+                <div class="mr-zoom-outer" id="mrZoomOuter">
+                    <table class="mr-table" id="mrTable">
+                        <thead>
+                            <tr class="mr-thead-groups">
+                                <th class="mr-th-inst-header">INSTITUTIONS</th>
+                                <th colspan="3" class="mr-th-group">FINANCIAL STATEMENT</th>
+                                <th colspan="2" class="mr-th-group">TREASURER'S REPORT</th>
+                                <th colspan="2" class="mr-th-group">RECONCILIATION</th>
+                            </tr>
+                            <tr class="mr-thead-cols">
+                                <th class="mr-th-inst"></th>
+                                <th>DATE RECEIVED</th>
+                                <th>WRKG CAP</th>
+                                <th>LIQUIDITY</th>
+                                <th>DATE RECEIVED</th>
+                                <th>REMITTANCE</th>
+                                <th>DATE RECEIVED</th>
+                                <th>OUTSTANDING</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mrTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Summary Panel -->
+            <div class="mr-summary-col">
+                <div class="mr-summary-card">
+                    <div class="mr-summary-title">REPORT SUMMARY</div>
+                    <div class="mr-summary-period" id="mrSummaryPeriod">APRIL 2026</div>
+                    <div class="mr-summary-stats">
+                        <div class="mr-stat-box mr-stat-blue">
+                            <div class="mr-stat-num" id="statTotal">0</div>
+                            <div class="mr-stat-lbl">TOTAL<br>INSTITUTIONS</div>
+                        </div>
+                        <div class="mr-stat-box mr-stat-teal">
+                            <div class="mr-stat-num" id="statSubmitted">0</div>
+                            <div class="mr-stat-lbl">SUBMITTED</div>
+                        </div>
+                        <div class="mr-stat-box mr-stat-dark">
+                            <div class="mr-stat-num" id="statPending">0</div>
+                            <div class="mr-stat-lbl">PENDING</div>
+                        </div>
+                        <div class="mr-stat-box mr-stat-orange">
+                            <div class="mr-stat-num" id="statOutstanding">0</div>
+                            <div class="mr-stat-lbl">OUTSTANDING</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mr-summary-card">
+                    <div class="mr-summary-title">SUBMISSION STATUS</div>
+                    <div id="mrStatusPanel"></div>
+                </div>
+
+                <div class="mr-clock-card">
+                    <div class="mr-clock-time" id="mrClockTime">—</div>
+                    <div class="mr-clock-date" id="mrClockDate">—</div>
+                </div>
+            </div>
+
+        </div><!-- /mr-body -->
+    </main>
+</div>
+
+<div class="mr-crud-overlay hidden" id="mrCrudOverlay" onclick="closeMrCrud()"></div>
+<div class="mr-crud-modal hidden" id="mrCrudModal">
+    <div class="mr-crud-header">
+        <span class="mr-crud-title">MONTHLY REPORT — EDIT / ADD</span>
+        <div class="mr-crud-header-right">
+            <select class="mr-select" id="mrCrudYear" onchange="mrCrudLoad()">
+                <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+            </select>
+            <select class="mr-select" id="mrCrudMonth" onchange="mrCrudLoad()">
+                <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                <option value="4" selected>April</option><option value="5">May</option><option value="6">June</option>
+                <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+            </select>
+            <button class="mr-crud-save-all" onclick="mrSaveAll()">&#10003; SAVE ALL</button>
+            <button class="mr-crud-close" onclick="closeMrCrud()">&#10005;</button>
+        </div>
+    </div>
+    <div class="mr-crud-body">
+        <div class="mr-crud-scroll">
+            <table class="mr-crud-table" id="mrCrudTable">
+                <thead>
+                    <tr>
+                        <th class="mr-crud-th-inst">INSTITUTION</th>
+                        <th colspan="3" class="mr-crud-th-group">FINANCIAL STATEMENT</th>
+                        <th colspan="2" class="mr-crud-th-group">TREASURER'S REPORT</th>
+                        <th colspan="2" class="mr-crud-th-group">RECONCILIATION</th>
+                        <th></th>
+                    </tr>
+                    <tr>
+                        <th class="mr-crud-th-inst"></th>
+                        <th>DATE RECEIVED</th>
+                        <th>WRKG CAP</th>
+                        <th>LIQUIDITY</th>
+                        <th>DATE RECEIVED</th>
+                        <th>REMITTANCE</th>
+                        <th>DATE RECEIVED</th>
+                        <th>OUTSTANDING</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="mrCrudBody"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="../Script/auth.js"></script>
+<script src="../Script/MonthlyReport.js"></script>
+</body>
+</html>

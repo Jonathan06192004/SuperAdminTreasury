@@ -1,14 +1,15 @@
-const SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
+const USERS_SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
+const USERS_SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
 
 const sbHeaders = {
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY,
+    apikey: USERS_SUPABASE_ANON_KEY,
+    Authorization: 'Bearer ' + USERS_SUPABASE_ANON_KEY,
     'Content-Type': 'application/json'
 };
 
 async function sb(path, options = {}) {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers: sbHeaders, ...options });
+    const res = await fetch(USERS_SUPABASE_URL + '/rest/v1/' + path, { headers: sbHeaders, ...options });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || res.statusText);
@@ -49,13 +50,13 @@ async function changePassword() {
     const user = getSession();
     try {
         // Verify current password
-        const data = await sb('users?id=eq.' + user.id + '&select=plain_password');
+        const data = await sb('users?id=eq.' + encodeURIComponent(user.id) + '&select=plain_password');
         if (!data[0] || data[0].plain_password !== current) {
             errEl.textContent = 'Current password is incorrect.';
             return;
         }
 
-        await sb('users?id=eq.' + user.id, {
+        await sb('users?id=eq.' + encodeURIComponent(user.id), {
             method: 'PATCH',
             body: JSON.stringify({ plain_password: newPw })
         });

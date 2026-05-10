@@ -19,6 +19,7 @@
                 <a href="Dashboard.html">Dashboard</a>
                 <a href="Users.html">Users</a>
                 <a href="FinancialStatement.html" class="active">Financial Statement</a>
+                <a href="MonthlyReport.html">Monthly Report</a>
                 <a href="Update.html">Update</a>
             </nav>
             <nav class="sidebar-nav sidebar-nav-bottom">
@@ -61,6 +62,7 @@
                                         <button onclick="openCashNoteCrud();closeBsDropdown()">Cash &amp; Cash Equivalents</button>
                                         <button onclick="openArNoteCrud();closeBsDropdown()">Accounts Receivable</button>
                                         <button onclick="openApNoteCrud();closeBsDropdown()">Accounts Payable</button>
+                                        <button onclick="openSdaSwpucCrud();closeBsDropdown()">SDA ENTITIES WITHIN SWPUC</button>
                                     </div>
                                 </div>
                                 <select class="fs-month-select" id="bsMonthSelect" onchange="renderAll(parseInt(this.value))">
@@ -76,15 +78,27 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-col-header" id="bsColHeader">
-                            <span class="fs-col-desc"></span>
-                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="bsColYear1">2025</span><span class="fs-col-total">TOTAL</span></span></span>
-                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="bsColYear2">2026</span><span class="fs-col-total">TOTAL</span></span></span>
-                        </div>
                         <div class="fs-zoom-outer">
                             <div class="fs-table-scroll" id="bsTableScroll">
                                 <table class="fs-table" id="bsTable">
                                     <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"></colgroup>
+                                    <thead class="fs-thead-year">
+                                        <tr>
+                                            <th class="fs-th-desc" aria-hidden="true"></th>
+                                            <th class="fs-th-stack" scope="col">
+                                                <span class="fs-col-inner">
+                                                    <span class="fs-col-year" id="bsColYear1">2025</span>
+                                                    <span class="fs-col-total">TOTAL</span>
+                                                </span>
+                                            </th>
+                                            <th class="fs-th-stack" scope="col">
+                                                <span class="fs-col-inner">
+                                                    <span class="fs-col-year" id="bsColYear2">2026</span>
+                                                    <span class="fs-col-total">TOTAL</span>
+                                                </span>
+                                            </th>
+                                        </tr>
+                                    </thead>
                                     <tbody id="bsTableBody"></tbody>
                                 </table>
                             </div>
@@ -99,6 +113,7 @@
                                 <span class="fs-panel-period" id="isPeriodLabel">JANUARY 2026</span>
                             </div>
                             <div class="fs-panel-controls">
+                                <button class="crud-add-btn" onclick="openIsCrud()">&#9998; EDIT / ADD</button>
                                 <select class="fs-month-select" id="isMonthSelect" onchange="renderAll(parseInt(this.value))">
                                     <option value="0">January</option><option value="1">February</option><option value="2">March</option>
                                     <option value="3">April</option><option value="4">May</option><option value="5">June</option>
@@ -112,22 +127,31 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-col-header" id="isColHeader">
-                            <span class="fs-col-desc"></span>
-                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="isColYear1">2026</span><span class="fs-col-total">TOTAL</span></span></span>
-                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="isColYear2">2026</span><span class="fs-col-total">BUDGET</span></span></span>
-                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="isColYear3">2025</span><span class="fs-col-total">TOTAL</span></span></span>
-                        </div>
                         <div class="fs-zoom-outer">
                             <div class="fs-table-scroll" id="isTableScroll">
-                                <table class="fs-table" id="isTable">
+                                <table class="fs-table fs-is-table" id="isTable">
                                     <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"><col class="col-amt"></colgroup>
-                                    <thead class="fs-thead-hidden">
+                                    <thead class="fs-thead-year">
                                         <tr>
-                                            <th class="fs-th">OPERATING ACTIVITY</th>
-                                            <th class="fs-th center" id="isThYear1">TOTAL 2026</th>
-                                            <th class="fs-th center" id="isThYear2">BUDGET 2026</th>
-                                            <th class="fs-th center" id="isThYear3">TOTAL 2025</th>
+                                            <th class="fs-th-desc" aria-hidden="true"></th>
+                                            <th class="fs-th-stack" scope="col">
+                                                <span class="fs-col-inner">
+                                                    <span class="fs-col-year" id="isColYear1">2026</span>
+                                                    <span class="fs-col-total">TOTAL</span>
+                                                </span>
+                                            </th>
+                                            <th class="fs-th-stack" scope="col">
+                                                <span class="fs-col-inner">
+                                                    <span class="fs-col-year" id="isColYear2">2026</span>
+                                                    <span class="fs-col-total">BUDGET</span>
+                                                </span>
+                                            </th>
+                                            <th class="fs-th-stack" scope="col">
+                                                <span class="fs-col-inner">
+                                                    <span class="fs-col-year" id="isColYear3">2025</span>
+                                                    <span class="fs-col-total">TOTAL</span>
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody id="isTableBody"></tbody>
@@ -157,10 +181,10 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-zoom-outer">
+                        <div class="fs-zoom-outer fs-cf-table-wrap">
                             <div class="fs-table-scroll" id="cfTableScroll">
-                                <table class="fs-table" id="cfTable">
-                                    <thead><tr><th class="fs-th">ACTIVITIES</th><th class="fs-th center">AMOUNT</th></tr></thead>
+                                <table class="fs-table fs-cf-table" id="cfTable">
+                                    <thead class="fs-thead-sticky"><tr><th class="fs-th">ACTIVITIES</th><th class="fs-th center">AMOUNT</th></tr></thead>
                                     <tbody id="cfTableBody"></tbody>
                                 </table>
                             </div>
@@ -175,6 +199,7 @@
                                 <span class="fs-panel-period" id="flPeriodLabel">JANUARY 2026</span>
                             </div>
                             <div class="fs-panel-controls">
+                                <button class="crud-add-btn" onclick="openFiCrud()">&#9998; EDIT / ADD</button>
                                 <button class="fs-pct-btn" id="flPctBtn" onclick="toggleFlMode()">&#37; SEE PERCENTAGE</button>
                                 <select class="fs-month-select" id="flMonthSelect" onchange="renderAll(parseInt(this.value))">
                                     <option value="0">January</option><option value="1">February</option><option value="2">March</option>
@@ -189,20 +214,25 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-col-header" id="flColHeader">
-                            <span class="fs-col-desc"></span>
-                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="flColYear1">2026</span><span class="fs-col-total">CURRENT</span></span></span>
-                            <span class="fs-col-label"><span class="fs-col-inner"><span class="fs-col-year" id="flColYear2">2025</span><span class="fs-col-total">PREVIOUS</span></span></span>
-                        </div>
                         <div class="fs-zoom-outer">
                             <div class="fs-table-scroll" id="flTableScroll">
                                 <table class="fs-table" id="flTable">
                                     <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"></colgroup>
-                                    <thead class="fs-thead-hidden">
+                                    <thead class="fs-thead-year">
                                         <tr>
-                                            <th class="fs-th"></th>
-                                            <th class="fs-th center">2026 CURRENT</th>
-                                            <th class="fs-th center">2025 PREVIOUS</th>
+                                            <th class="fs-th-desc" aria-hidden="true"></th>
+                                            <th class="fs-th-stack" scope="col">
+                                                <span class="fs-col-inner">
+                                                    <span class="fs-col-year" id="flColYear1">2026</span>
+                                                    <span class="fs-col-total">CURRENT</span>
+                                                </span>
+                                            </th>
+                                            <th class="fs-th-stack" scope="col">
+                                                <span class="fs-col-inner">
+                                                    <span class="fs-col-year" id="flColYear2">2025</span>
+                                                    <span class="fs-col-total">PREVIOUS</span>
+                                                </span>
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody id="flTableBody"></tbody>
@@ -271,6 +301,17 @@
                             <p class="kpi-label">AVAILABLE LIQUID ASSETS IN MONTHS</p>
                             <p class="kpi-value" id="kpiLaMonths">—</p>
                         </div>
+                    </div>
+
+                    <!-- Conference contributions (visual only; not DB-backed) -->
+                    <div class="fs-conf-card" id="fsConfCard">
+                        <h3 class="fs-conf-title" id="fsConfTitle">CONFERENCE CONTRIBUTIONS</h3>
+                        <div class="fs-conf-bars" id="fsConfBars"></div>
+                    </div>
+
+                    <div class="fs-clock-card">
+                        <div class="fs-clock-time" id="fsClockTime">—</div>
+                        <div class="fs-clock-date" id="fsClockDate">—</div>
                     </div>
 
                 </div><!-- /fs-kpi-col -->
@@ -354,12 +395,12 @@
     <!-- Cash Note Modal -->
     <div class="crud-overlay hidden" id="cashNoteOverlay" onclick="closeCashNote()"></div>
     <div class="cash-note-modal hidden" id="cashNoteModal">
-        <div class="cash-note-header">
+        <div class="cash-note-header cash-note-header--yellow">
             <span class="cash-note-title">NOTE 3 &ndash; CASH AND CASH EQUIVALENTS</span>
-            <button class="cash-note-close" onclick="closeCashNote()">&#10005;</button>
+            <button type="button" class="cash-note-close" onclick="closeCashNote()" aria-label="Close">&#10005;</button>
         </div>
         <div class="cash-note-col-header">
-            <span class="cash-note-col-desc"></span>
+            <span class="cash-note-col-desc" aria-hidden="true"></span>
             <span class="cash-note-col-label">CURRENT</span>
             <span class="cash-note-col-label">PREVIOUS</span>
         </div>
@@ -371,13 +412,14 @@
     </div>
 
     <!-- AR Note Modal -->
+    <div class="crud-overlay hidden" id="arNoteOverlay" onclick="closeArNote()"></div>
     <div class="cash-note-modal hidden" id="arNoteModal">
-        <div class="cash-note-header">
+        <div class="cash-note-header cash-note-header--yellow">
             <span class="cash-note-title">NOTE 5 &ndash; ACCOUNTS RECEIVABLE</span>
-            <button class="cash-note-close" onclick="closeArNote()">&#10005;</button>
+            <button type="button" class="cash-note-close" onclick="closeArNote()" aria-label="Close">&#10005;</button>
         </div>
         <div class="cash-note-col-header">
-            <span class="cash-note-col-desc"></span>
+            <span class="cash-note-col-desc" aria-hidden="true"></span>
             <span class="cash-note-col-label">CURRENT</span>
             <span class="cash-note-col-label">PREVIOUS</span>
         </div>
@@ -390,15 +432,15 @@
 
     <!-- AR SDA Drill-down Modal -->
     <div class="ar-sda-modal hidden" id="arSdaModal">
-        <div class="cash-note-header" style="flex-direction:column;align-items:flex-start;gap:2px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+        <div class="cash-note-header cash-note-header--yellow cash-note-header--stack">
+            <div class="cash-note-header-row">
                 <span class="cash-note-title">NOTE 5 &mdash; ACCOUNTS RECEIVABLE</span>
-                <button class="cash-note-close" onclick="closeArSda()">&#10005;</button>
+                <button type="button" class="cash-note-close" onclick="closeArSda()" aria-label="Close">&#10005;</button>
             </div>
-            <span class="ar-sda-subtitle">SDA ENTITIES WITHIN SWPUC</span>
+            <span class="cash-note-subtitle">SDA ENTITIES WITHIN SWPUC</span>
         </div>
-        <div class="cash-note-col-header">
-            <span class="cash-note-col-desc" style="color:#f5c800;font-family:'Montserrat',sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:2px;">DESCRIPTION</span>
+        <div class="cash-note-col-header cash-note-col-header--sda2">
+            <span class="cash-note-col-desc cash-note-col-desc--gold">DESCRIPTION</span>
             <span class="cash-note-col-label">CURRENT</span>
         </div>
         <div class="cash-note-body-wrap">
@@ -409,13 +451,14 @@
     </div>
 
     <!-- AP Note Modal -->
+    <div class="crud-overlay hidden" id="apNoteOverlay" onclick="closeApNote()"></div>
     <div class="cash-note-modal hidden" id="apNoteModal">
-        <div class="cash-note-header">
+        <div class="cash-note-header cash-note-header--yellow">
             <span class="cash-note-title">NOTE 10 &ndash; ACCOUNTS PAYABLE</span>
-            <button class="cash-note-close" onclick="closeApNote()">&#10005;</button>
+            <button type="button" class="cash-note-close" onclick="closeApNote()" aria-label="Close">&#10005;</button>
         </div>
         <div class="cash-note-col-header">
-            <span class="cash-note-col-desc"></span>
+            <span class="cash-note-col-desc" aria-hidden="true"></span>
             <span class="cash-note-col-label">CURRENT</span>
             <span class="cash-note-col-label">PREVIOUS</span>
         </div>
@@ -427,16 +470,16 @@
     </div>
 
     <!-- AP SDA Drill-down Modal -->
-    <div class="ar-sda-modal hidden" id="apSdaModal" style="width:700px;">
-        <div class="cash-note-header" style="flex-direction:column;align-items:flex-start;gap:2px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;width:100%;">
+    <div class="ar-sda-modal ar-sda-modal--wide hidden" id="apSdaModal">
+        <div class="cash-note-header cash-note-header--yellow cash-note-header--stack">
+            <div class="cash-note-header-row">
                 <span class="cash-note-title">NOTE 10 &mdash; ACCOUNTS PAYABLE</span>
-                <button class="cash-note-close" onclick="closeApSda()">&#10005;</button>
+                <button type="button" class="cash-note-close" onclick="closeApSda()" aria-label="Close">&#10005;</button>
             </div>
-            <span class="ar-sda-subtitle">SDA ENTITIES WITHIN SWPUC</span>
+            <span class="cash-note-subtitle">SDA ENTITIES WITHIN SWPUC</span>
         </div>
-        <div class="cash-note-col-header">
-            <span class="cash-note-col-desc" style="color:#f5c800;font-family:'Montserrat',sans-serif;font-weight:800;font-size:0.72rem;letter-spacing:2px;">DESCRIPTION</span>
+        <div class="cash-note-col-header cash-note-col-header--sda3">
+            <span class="cash-note-col-desc cash-note-col-desc--gold">DESCRIPTION</span>
             <span class="cash-note-col-label">BASE AMOUNT</span>
             <span class="cash-note-col-label">CURRENT</span>
         </div>
@@ -597,6 +640,100 @@
                 </div>
             </div>
             <div id="apSdaCrudRowList" class="note-row-list"></div>
+        </div>
+    </div>
+
+    <!-- SDA entities (AR + AP) — single entry from EDIT/ADD -->
+    <div class="crud-overlay hidden" id="sdaSwpucOverlay" onclick="closeSdaSwpucCrud()"></div>
+    <div class="crud-modal hidden" id="sdaSwpucCrudModal" style="width: min(94vw, 720px);">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">SDA ENTITIES WITHIN SWPUC</span>
+            <div class="crud-modal-actions">
+                <button type="button" class="crud-btn crud-btn-ghost" onclick="closeSdaSwpucCrud()">CLOSE</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="sda-sw-tabs">
+                <button type="button" class="sda-sw-tab active" id="sdaSwTabAr" onclick="setSdaSwpucKind('ar')">
+                    RECEIVABLE (NOTE 5)
+                </button>
+                <button type="button" class="sda-sw-tab" id="sdaSwTabAp" onclick="setSdaSwpucKind('ap')">
+                    PAYABLE (NOTE 10)
+                </button>
+            </div>
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="sdaSwpucYear" onchange="sdaSwpucCrudLoad()">
+                        <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                    </select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="sdaSwpucMonth" onchange="sdaSwpucCrudLoad()">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                        <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                        <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                        <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+                <div class="crud-field" style="flex:0;align-self:flex-end;">
+                    <button type="button" class="crud-btn crud-btn-primary" onclick="sdaSwpucCrudAddNew()">&#43; ADD ENTITY</button>
+                </div>
+            </div>
+            <div id="sdaSwpucRowList" class="note-row-list"></div>
+        </div>
+    </div>
+
+    <!-- Income Statement CRUD Modal -->
+    <div class="crud-overlay hidden" id="isCrudOverlay" onclick="closeIsCrud()"></div>
+    <div class="crud-modal hidden" id="isCrudModal" style="width:min(98vw,1100px);">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">INCOME STATEMENT</span>
+            <div class="crud-modal-actions">
+                <button class="crud-btn crud-btn-ghost" onclick="closeIsCrud()">CLOSE</button>
+            </div>
+        </div>
+        <div class="crud-modal-body">
+            <div class="crud-meta-row">
+                <div class="crud-field">
+                    <label class="crud-label">YEAR</label>
+                    <select class="crud-input" id="isCrudYear" onchange="isCrudLoad()">
+                        <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                    </select>
+                </div>
+                <div class="crud-field">
+                    <label class="crud-label">MONTH</label>
+                    <select class="crud-input" id="isCrudMonth" onchange="isCrudLoad()">
+                        <option value="1">January</option><option value="2">February</option><option value="3">March</option><option value="4">April</option><option value="5">May</option><option value="6">June</option><option value="7">July</option><option value="8">August</option><option value="9">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                    </select>
+                </div>
+            </div>
+            <div id="isCrudFieldsGrid"></div>
+        </div>
+    </div>
+
+    <!-- Financial Indicator CRUD Modal -->
+    <div class="crud-overlay hidden" id="fiCrudOverlay" onclick="closeFiCrud()"></div>
+    <div class="crud-modal hidden" id="fiCrudModal" style="width:min(98vw,1000px);">
+        <div class="crud-modal-header">
+            <span class="crud-modal-title">FINANCIAL INDICATOR &mdash; EDIT / ADD</span>
+            <div class="crud-modal-actions">
+                <select class="crud-input" id="fiCrudYear" onchange="fiCrudLoad()" style="width:90px;">
+                    <option value="2025">2025</option><option value="2026" selected>2026</option><option value="2027">2027</option>
+                </select>
+                <select class="crud-input" id="fiCrudMonth" onchange="fiCrudLoad()" style="width:110px;">
+                    <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+                    <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                    <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                    <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                </select>
+                <button class="crud-btn crud-btn-primary" onclick="fiSaveAll()">&#10003; SAVE ALL</button>
+                <button class="crud-btn crud-btn-ghost" onclick="closeFiCrud()">&#10005;</button>
+            </div>
+        </div>
+        <div class="crud-modal-body" style="padding:0;">
+            <div id="fiCrudFieldsGrid"></div>
         </div>
     </div>
 

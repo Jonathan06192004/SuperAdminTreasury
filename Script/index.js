@@ -1,5 +1,7 @@
-const SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
+/** Login reads `users` from the Users Supabase project (superadmin accounts). */
+const USERS_SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
+const USERS_SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
 
 function toggleLoginPw(btn) {
     const input = document.getElementById('password');
@@ -21,9 +23,16 @@ document.getElementById('loginForm').addEventListener('submit', async function (
 
     try {
         const res = await fetch(
-            SUPABASE_URL + '/rest/v1/users?username=eq.' + encodeURIComponent(username) +
-            '&select=id,username,full_name,role,is_active,plain_password',
-            { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+            USERS_SUPABASE_URL +
+                '/rest/v1/users?username=eq.' +
+                encodeURIComponent(username) +
+                '&select=id,username,full_name,role,is_active,plain_password',
+            {
+                headers: {
+                    apikey: USERS_SUPABASE_ANON_KEY,
+                    Authorization: 'Bearer ' + USERS_SUPABASE_ANON_KEY
+                }
+            }
         );
         const data = await res.json();
         const user = data[0];

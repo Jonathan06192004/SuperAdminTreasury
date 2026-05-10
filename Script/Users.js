@@ -1,12 +1,22 @@
-const SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
+/** Admin / viewer accounts: `users`, `union_users` (and optional `mission_users`) */
+const USERS_SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
+const USERS_SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
 
-const TREASURY_URL = 'https://bchvcxkocdlrkkzivuun.supabase.co';
-const TREASURY_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjaHZjeGtvY2Rscmtreml2dXVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODA3NjksImV4cCI6MjA5Mjg1Njc2OX0.oyfzu_VNk9nZocRcq02JTmxdgQEi3BqclZEKgHwqF5U';
+/** Treasury DB: `missions` reference for mission_code dropdown (same as Update / financial apps) */
+const TREASURY_SUPABASE_URL = 'https://bchvcxkocdlrkkzivuun.supabase.co';
+const TREASURY_SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjaHZjeGtvY2Rscmtreml2dXVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcyODA3NjksImV4cCI6MjA5Mjg1Njc2OX0.oyfzu_VNk9nZocRcq02JTmxdgQEi3BqclZEKgHwqF5U';
 
-const headers = {
-    'apikey': SUPABASE_KEY,
-    'Authorization': 'Bearer ' + SUPABASE_KEY,
+const usersHeaders = {
+    apikey: USERS_SUPABASE_ANON_KEY,
+    Authorization: 'Bearer ' + USERS_SUPABASE_ANON_KEY,
+    'Content-Type': 'application/json'
+};
+
+const treasuryHeaders = {
+    apikey: TREASURY_SUPABASE_ANON_KEY,
+    Authorization: 'Bearer ' + TREASURY_SUPABASE_ANON_KEY,
     'Content-Type': 'application/json'
 };
 
@@ -22,11 +32,27 @@ let roleFilter = '';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
-async function sb(path, options = {}) {
-    const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, { headers, ...options });
+async function sbUsers(path, options = {}) {
+    const res = await fetch(USERS_SUPABASE_URL + '/rest/v1/' + path, {
+        headers: usersHeaders,
+        ...options
+    });
     if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        throw new Error(err.message || res.statusText);
+        throw new Error(err.message || err.hint || res.statusText);
+    }
+    if (res.status === 204 || res.headers.get('content-length') === '0') return null;
+    return res.json();
+}
+
+async function sbTreasury(path, options = {}) {
+    const res = await fetch(TREASURY_SUPABASE_URL + '/rest/v1/' + path, {
+        headers: treasuryHeaders,
+        ...options
+    });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || err.hint || res.statusText);
     }
     if (res.status === 204 || res.headers.get('content-length') === '0') return null;
     return res.json();
@@ -71,10 +97,7 @@ async function init() {
 
 async function loadMissions() {
     try {
-        const res = await fetch(TREASURY_URL + '/rest/v1/missions?select=code,name&order=id', {
-            headers: { 'apikey': TREASURY_KEY, 'Authorization': 'Bearer ' + TREASURY_KEY }
-        });
-        missions = await res.json();
+        missions = await sbTreasury('missions?select=code,name&order=id');
         const sel = document.getElementById('f-mission');
         sel.innerHTML = '<option value="">— None —</option>';
         missions.forEach(m => {
@@ -90,7 +113,9 @@ async function loadUsers() {
     const area = document.getElementById('table-area');
     area.innerHTML = '<p class="placeholder-note">Loading…</p>';
     try {
-        const data = await sb('users?select=id,username,full_name,role,mission_code,is_active,plain_password,token,created_at&order=created_at.asc');
+        const data = await sbUsers(
+            'users?select=id,username,full_name,role,mission_code,is_active,plain_password,token,created_at&order=created_at.asc'
+        );
         // exclude viewers from admin table
         allUsers = data.filter(u => u.role !== 'viewer');
         renderTable();
@@ -103,7 +128,9 @@ async function loadViewers() {
     const area = document.getElementById('viewer-table-area');
     area.innerHTML = '<p class="placeholder-note">Loading…</p>';
     try {
-        allViewers = await sb('union_users?select=id,username,full_name,email,phone,is_active,created_at&order=created_at.asc');
+        allViewers = await sbUsers(
+            'union_users?select=id,username,full_name,email,phone,is_active,created_at&order=created_at.asc'
+        );
         renderViewerTable();
     } catch (e) {
         area.innerHTML = '<p class="error-note">Failed to load viewers: ' + e.message + '</p>';
@@ -318,9 +345,12 @@ async function saveModal() {
 
         if (modalMode === 'add') {
             payload.is_active = true;
-            await sb('users', { method: 'POST', body: JSON.stringify(payload) });
+            await sbUsers('users', { method: 'POST', body: JSON.stringify(payload) });
         } else {
-            await sb('users?id=eq.' + editingId, { method: 'PATCH', body: JSON.stringify(payload) });
+            await sbUsers('users?id=eq.' + encodeURIComponent(editingId), {
+                method: 'PATCH',
+                body: JSON.stringify(payload)
+            });
         }
 
         closeModal();
@@ -393,9 +423,12 @@ async function saveViewerModal() {
 
         if (viewerModalMode === 'add') {
             payload.is_active = true;
-            await sb('union_users', { method: 'POST', body: JSON.stringify(payload) });
+            await sbUsers('union_users', { method: 'POST', body: JSON.stringify(payload) });
         } else {
-            await sb('union_users?id=eq.' + editingViewerId, { method: 'PATCH', body: JSON.stringify(payload) });
+            await sbUsers('union_users?id=eq.' + encodeURIComponent(editingViewerId), {
+                method: 'PATCH',
+                body: JSON.stringify(payload)
+            });
         }
         closeViewerModal();
         loadViewers();
@@ -412,7 +445,10 @@ async function saveViewerModal() {
 
 async function toggleViewerActive(id, currentState) {
     try {
-        await sb('union_users?id=eq.' + id, { method: 'PATCH', body: JSON.stringify({ is_active: !currentState }) });
+        await sbUsers('union_users?id=eq.' + encodeURIComponent(id), {
+            method: 'PATCH',
+            body: JSON.stringify({ is_active: !currentState })
+        });
         loadViewers();
     } catch (e) { alert('Failed to update status: ' + e.message); }
 }
@@ -421,7 +457,7 @@ async function deleteViewer(id) {
     const v = allViewers.find(v => v.id === id);
     if (!confirm('Delete "' + (v?.full_name ?? 'this viewer') + '"? This cannot be undone.')) return;
     try {
-        await sb('union_users?id=eq.' + id, { method: 'DELETE' });
+        await sbUsers('union_users?id=eq.' + encodeURIComponent(id), { method: 'DELETE' });
         loadViewers();
     } catch (e) { alert('Delete failed: ' + e.message); }
 }
@@ -461,7 +497,7 @@ async function saveResetPassword() {
     errEl.textContent = '';
 
     try {
-        await sb('users?id=eq.' + resetTargetId, {
+        await sbUsers('users?id=eq.' + encodeURIComponent(resetTargetId), {
             method: 'PATCH',
             body: JSON.stringify({ plain_password: newPw })
         });
@@ -479,7 +515,7 @@ async function saveResetPassword() {
 
 async function toggleActive(id, currentState) {
     try {
-        await sb('users?id=eq.' + id, {
+        await sbUsers('users?id=eq.' + encodeURIComponent(id), {
             method: 'PATCH',
             body: JSON.stringify({ is_active: !currentState })
         });
@@ -493,7 +529,7 @@ async function deleteUser(id) {
     const u = allUsers.find(u => u.id === id);
     if (!confirm('Delete "' + (u?.full_name ?? 'this user') + '"? This cannot be undone.')) return;
     try {
-        await sb('users?id=eq.' + id, { method: 'DELETE' });
+        await sbUsers('users?id=eq.' + encodeURIComponent(id), { method: 'DELETE' });
         loadUsers();
     } catch (e) {
         alert('Delete failed: ' + e.message);

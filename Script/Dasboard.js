@@ -1,12 +1,19 @@
-const SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
+const USERS_SUPABASE_URL = 'https://fczudbtgtpkxteppckwb.supabase.co';
+const USERS_SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZjenVkYnRndHBreHRlcHBja3diIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5NzczMzEsImV4cCI6MjA5MzU1MzMzMX0.AZKGqLFVB-VpBsDrg0ekOzX755t5kLfgWZPEJ92ELeU';
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 
 async function fetchUsers() {
     const res = await fetch(
-        SUPABASE_URL + '/rest/v1/users?select=id,full_name,username,role,mission_code,is_active,created_at,updated_at&order=created_at.desc',
-        { headers: { 'apikey': SUPABASE_KEY, 'Authorization': 'Bearer ' + SUPABASE_KEY } }
+        USERS_SUPABASE_URL +
+            '/rest/v1/users?select=id,full_name,username,role,mission_code,is_active,created_at,updated_at&order=created_at.desc',
+        {
+            headers: {
+                apikey: USERS_SUPABASE_ANON_KEY,
+                Authorization: 'Bearer ' + USERS_SUPABASE_ANON_KEY
+            }
+        }
     );
     return res.json();
 }
