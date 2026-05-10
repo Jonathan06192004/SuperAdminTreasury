@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Settings</title>
     <link rel="stylesheet" href="../Styles/Settings.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet" />
 </head>
 <body>
     <div class="settings-shell">
@@ -27,26 +28,32 @@
 
         <main class="settings-main">
 
-            <!-- Header with logout -->
             <header class="settings-header">
                 <div>
                     <h1>Settings</h1>
-                    <p>Manage your super admin account.</p>
+                    <p>Manage your super admin account and preferences.</p>
                 </div>
-                <!-- Account dropdown -->
                 <div class="acct-dropdown" id="acctDropdown">
-                    <button class="acct-trigger" onclick="toggleDropdown()" aria-label="Menu">
-                        <span class="burger-bar"></span>
-                        <span class="burger-bar"></span>
-                        <span class="burger-bar"></span>
+                    <button class="acct-trigger" onclick="toggleDropdown()" aria-label="Account menu">
+                        <div class="acct-avatar-sm" id="acct-avatar-initials">SA</div>
+                        <span class="acct-trigger-name" id="acct-trigger-name">Admin</span>
+                        <span class="acct-chevron">&#9660;</span>
                     </button>
                     <div class="acct-menu" id="acctMenu">
+                        <div class="acct-menu-profile">
+                            <div class="acct-menu-avatar" id="acct-menu-avatar">SA</div>
+                            <div>
+                                <p class="acct-menu-name" id="acct-menu-name">Super Admin</p>
+                                <p class="acct-menu-role">Super Administrator</p>
+                            </div>
+                        </div>
+                        <div class="acct-menu-divider"></div>
                         <button class="acct-menu-item" onclick="toggleTheme()">
                             <span class="acct-menu-icon" id="themeIcon">&#9790;</span>
                             <span id="themeLabel">Light Mode</span>
                         </button>
                         <div class="acct-menu-divider"></div>
-                        <button class="acct-menu-item acct-menu-danger" onclick="confirmLogout()">
+                        <button class="acct-menu-item acct-menu-danger" onclick="openLogoutModal()">
                             <span class="acct-menu-icon">&#x2192;</span>
                             Log Out
                         </button>
@@ -54,25 +61,42 @@
                 </div>
             </header>
 
+            <div class="settings-scroll">
             <div class="settings-content">
 
                 <!-- Profile Card -->
                 <section class="settings-card profile-card">
-                    <div class="card-section-title">Account Info</div>
+                    <div class="card-section-label">&#128100; Account Info</div>
                     <div class="profile-center">
                         <div class="avatar-circle" id="avatar-initials">SA</div>
                         <div class="profile-info">
                             <p class="profile-name" id="profile-name">—</p>
                             <p class="profile-username" id="profile-username">—</p>
-                            <span class="role-pill">Super Admin</span>
+                            <span class="role-pill">&#128274; Super Admin</span>
+                        </div>
+                        <div class="profile-stats">
+                            <div class="profile-stat">
+                                <span class="profile-stat-val">Active</span>
+                                <span class="profile-stat-key">Status</span>
+                            </div>
+                            <div class="profile-stat-divider"></div>
+                            <div class="profile-stat">
+                                <span class="profile-stat-val">Full</span>
+                                <span class="profile-stat-key">Access</span>
+                            </div>
+                            <div class="profile-stat-divider"></div>
+                            <div class="profile-stat">
+                                <span class="profile-stat-val">SPUC</span>
+                                <span class="profile-stat-key">Organization</span>
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- Change Password Card -->
                 <section class="settings-card">
-                    <div class="card-section-title">Change Password</div>
-                    <p class="card-desc">Update your super admin login password.</p>
+                    <div class="card-section-label">&#128274; Change Password</div>
+                    <p class="card-desc">Update your super admin login password. Use a strong password with at least 6 characters.</p>
                     <div class="settings-fields">
                         <div class="fields-row">
                             <div class="field-group">
@@ -101,25 +125,91 @@
                     <p class="settings-error" id="pw-error"></p>
                     <p class="settings-success" id="pw-success"></p>
                     <div class="card-footer">
-                        <button class="save-btn" onclick="changePassword()">Update Password</button>
+                        <button class="save-btn" onclick="changePassword()">&#10003; Update Password</button>
+                    </div>
+                </section>
+
+                <!-- App Preferences -->
+                <section class="settings-card">
+                    <div class="card-section-label">&#9881; Preferences</div>
+                    <p class="card-desc">Customize your dashboard appearance and behavior.</p>
+                    <div class="pref-list">
+                        <div class="pref-item">
+                            <div class="pref-info">
+                                <p class="pref-label">Theme</p>
+                                <p class="pref-desc">Switch between dark and light interface mode.</p>
+                            </div>
+                            <button class="pref-toggle-btn" onclick="toggleTheme()" id="themeToggleBtn">
+                                <span id="themeToggleIcon">&#9790;</span>
+                                <span id="themeToggleLabel">Light Mode</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Session & Security -->
+                <section class="settings-card">
+                    <div class="card-section-label">&#128737; Session &amp; Security</div>
+                    <p class="card-desc">Manage your active sessions and access security.</p>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-key">Role</span>
+                            <span class="info-val">Super Administrator</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-key">Organization</span>
+                            <span class="info-val">Southwestern Philippines Union Conference</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-key">Session</span>
+                            <span class="info-val info-val-active">&#9679; Active</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-key">Access Level</span>
+                            <span class="info-val">Full System Access</span>
+                        </div>
                     </div>
                 </section>
 
                 <!-- Danger Zone -->
                 <section class="settings-card danger-card">
-                    <div class="card-section-title danger-title">Danger Zone</div>
+                    <div class="card-section-label danger-title">&#9888; Danger Zone</div>
                     <p class="card-desc">These actions are irreversible. Proceed with caution.</p>
-                    <div class="danger-item">
-                        <div>
-                            <p class="danger-label">Clear All Sessions</p>
-                            <p class="danger-desc">Force logout from all active sessions immediately.</p>
+                    <div class="danger-list">
+                        <div class="danger-item">
+                            <div class="danger-item-icon">&#128274;</div>
+                            <div class="danger-item-body">
+                                <p class="danger-label">Clear All Sessions</p>
+                                <p class="danger-desc">Force logout from all active sessions immediately.</p>
+                            </div>
+                            <button class="danger-btn" onclick="clearSessions()">Clear Sessions</button>
                         </div>
-                        <button class="danger-btn" onclick="clearSessions()">Clear Sessions</button>
+                        <div class="danger-item danger-item-logout">
+                            <div class="danger-item-icon logout-icon">&#x2192;</div>
+                            <div class="danger-item-body">
+                                <p class="danger-label">Log Out</p>
+                                <p class="danger-desc">Sign out of your super admin account securely.</p>
+                            </div>
+                            <button class="danger-btn danger-btn-logout" onclick="openLogoutModal()">Log Out</button>
+                        </div>
                     </div>
                 </section>
 
             </div>
+            </div>
         </main>
+    </div>
+
+    <!-- Logout Confirmation Modal -->
+    <div class="modal-overlay hidden" id="logoutOverlay" onclick="closeLogoutModal()"></div>
+    <div class="logout-modal hidden" id="logoutModal">
+        <div class="logout-modal-icon">&#x2192;</div>
+        <h2 class="logout-modal-title">Log Out?</h2>
+        <p class="logout-modal-desc">You are about to sign out of your SuperAdmin Treasury account. Any unsaved changes will be lost.</p>
+        <div class="logout-modal-actions">
+            <button class="logout-cancel-btn" onclick="closeLogoutModal()">Cancel</button>
+            <button class="logout-confirm-btn" onclick="logout()">Yes, Log Out</button>
+        </div>
     </div>
 
     <script src="../Script/auth.js"></script>

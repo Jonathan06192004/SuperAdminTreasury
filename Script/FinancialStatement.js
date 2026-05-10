@@ -638,6 +638,8 @@ function renderIncomeStatement() {
         pickLine((l) => /^TOTAL OPERATING EXPENSES$/i.test((l.label || '').trim())) ||
         pickLine((l) => (l.line_key || '').toLowerCase().includes('total_operating_expense'));
     const cap =
+        pickLine((l) => (l.line_key || '').toUpperCase() === 'INCREASE_BEFORE_TRANSFERS') ||
+        pickLine((l) => /INCREASE\s*\(DECREASE\)\s*BEFORE\s*TRANSFERS/i.test(l.label || '')) ||
         pickLine((l) => /net capital increase|capital activity/i.test(l.label || '')) ||
         pickLine((l) => (l.line_key || '').toLowerCase().includes('capital'));
     const na =

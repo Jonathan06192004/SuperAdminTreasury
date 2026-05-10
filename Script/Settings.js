@@ -89,8 +89,14 @@ function applyTheme(mode) {
     document.body.classList.toggle('light-mode', isLight);
     const icon = document.getElementById('themeIcon');
     const label = document.getElementById('themeLabel');
-    if (icon) icon.textContent = isLight ? '\u2600\uFE0F' : '\u263E';
-    if (label) label.textContent = isLight ? 'Dark Mode' : 'Light Mode';
+    const toggleIcon = document.getElementById('themeToggleIcon');
+    const toggleLabel = document.getElementById('themeToggleLabel');
+    const iconVal = isLight ? '\u2600\uFE0F' : '\u263E';
+    const labelVal = isLight ? 'Dark Mode' : 'Light Mode';
+    if (icon) icon.textContent = iconVal;
+    if (label) label.textContent = labelVal;
+    if (toggleIcon) toggleIcon.textContent = iconVal;
+    if (toggleLabel) toggleLabel.textContent = labelVal;
 }
 
 function toggleTheme() {
@@ -105,8 +111,19 @@ applyTheme(localStorage.getItem('theme') || 'dark');
 
 // ── Logout ────────────────────────────────────────────────────────────────────
 
+function openLogoutModal() {
+    document.getElementById('logoutOverlay').classList.remove('hidden');
+    document.getElementById('logoutModal').classList.remove('hidden');
+    document.getElementById('acctDropdown').classList.remove('open');
+}
+
+function closeLogoutModal() {
+    document.getElementById('logoutOverlay').classList.add('hidden');
+    document.getElementById('logoutModal').classList.add('hidden');
+}
+
 function confirmLogout() {
-    if (confirm('Are you sure you want to log out?')) logout();
+    openLogoutModal();
 }
 
 // ── Clear sessions ────────────────────────────────────────────────────────────
