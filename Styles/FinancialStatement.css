@@ -1848,3 +1848,70 @@ body.light-mode .fs-error-banner {
     background: #fff1f2;
     color: #dc2626;
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Financial Statement (enhanced)
+══════════════════════════════════════════════════════════════════════════ */
+
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 300;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(8,20,42,0.95);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    backdrop-filter: blur(8px);
+}
+.sidebar-toggle span { display: block; width: 18px; height: 2px; background: rgba(238,243,255,0.8); border-radius: 2px; transition: all 0.25s; }
+.sidebar-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.sidebar-toggle.open span:nth-child(2) { opacity: 0; }
+.sidebar-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 199; backdrop-filter: blur(2px); }
+.sidebar-backdrop.visible { display: block; }
+
+body.light-mode .sidebar-toggle { background: rgba(255,255,255,0.95); border-color: #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+body.light-mode .sidebar-toggle span { background: #475569; }
+
+@media (max-width: 900px) {
+    .sidebar-toggle { display: flex; }
+
+    .dashboard-sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        height: 100vh;
+        z-index: 200;
+        transition: left 0.28s cubic-bezier(0.4,0,0.2,1);
+        overflow-y: auto;
+    }
+    .dashboard-sidebar.open { left: 0; }
+
+    .dashboard-main { padding: 16px; padding-top: 68px; }
+    .dashboard-header h1 { font-size: 1.3rem; }
+    .fs-panel-header { flex-direction: column; align-items: flex-start; }
+    .fs-panel-controls { flex-wrap: wrap; }
+    .fs-tab-nav { gap: 6px; }
+    .fs-tab-btn { font-size: 0.6rem; padding: 8px 12px; }
+    .fs-kpi-col { position: static; }
+    .kpi-cards { flex-direction: row; flex-wrap: wrap; }
+    .kpi-card { flex: 1; min-width: 140px; }
+}
+
+@media (max-width: 640px) {
+    .fs-tab-btn { padding: 7px 9px; font-size: 0.58rem; letter-spacing: 0.06em; }
+    .fs-panel-title { font-size: 0.9rem; }
+    .crud-fields-grid { grid-template-columns: 1fr 1fr; }
+    .crud-modal { width: 96vw; }
+    .kpi-card { min-width: 120px; }
+    .fs-conf-card, .fs-clock-card { display: none; }
+}

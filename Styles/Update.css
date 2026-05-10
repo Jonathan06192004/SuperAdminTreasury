@@ -846,3 +846,69 @@ body.light-mode .modal-save {
     box-shadow: 0 4px 14px rgba(59,130,246,0.3);
 }
 body.light-mode .modal-save:hover { box-shadow: 0 8px 22px rgba(59,130,246,0.4); }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RESPONSIVE — Update (enhanced)
+══════════════════════════════════════════════════════════════════════════ */
+
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 300;
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(8,20,42,0.95);
+    cursor: pointer;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    backdrop-filter: blur(8px);
+}
+.sidebar-toggle span { display: block; width: 18px; height: 2px; background: rgba(238,243,255,0.8); border-radius: 2px; transition: all 0.25s; }
+.sidebar-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.sidebar-toggle.open span:nth-child(2) { opacity: 0; }
+.sidebar-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+.sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.55); z-index: 199; backdrop-filter: blur(2px); }
+.sidebar-backdrop.visible { display: block; }
+
+body.light-mode .sidebar-toggle { background: rgba(255,255,255,0.95); border-color: #e2e8f0; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+body.light-mode .sidebar-toggle span { background: #475569; }
+
+@media (max-width: 900px) {
+    .sidebar-toggle { display: flex; }
+
+    .update-sidebar {
+        position: fixed;
+        top: 0;
+        left: -260px;
+        height: 100vh;
+        z-index: 200;
+        transition: left 0.28s cubic-bezier(0.4,0,0.2,1);
+    }
+    .update-sidebar.open { left: 0; }
+
+    .update-shell { flex-direction: row; }
+    .update-main { padding: 16px; padding-top: 68px; width: 100%; }
+    .update-header { flex-wrap: wrap; gap: 12px; }
+    .update-header h1 { font-size: 1.4rem; }
+    .category-buttons { flex-wrap: wrap; }
+    .card-header { flex-wrap: wrap; }
+    .card-actions { flex-wrap: wrap; }
+}
+
+@media (max-width: 640px) {
+    .update-card { padding: 16px; }
+    .mission-buttons { gap: 6px; }
+    .mission-btn { padding: 7px 14px; font-size: 0.82rem; }
+    .cat-btn { padding: 9px 18px; font-size: 0.88rem; }
+    .data-table thead th:nth-child(5),
+    .data-table tbody td:nth-child(5) { display: none; }
+    .modal-fields { grid-template-columns: 1fr; }
+    .filter-dropdown { min-width: 180px; }
+}
