@@ -61,6 +61,7 @@
                             <div class="fs-panel-header-left">
                                 <span class="fs-panel-title">FINANCIAL POSITION</span>
                                 <span class="fs-panel-period" id="bsPeriodLabel">JANUARY 2026</span>
+                                <span class="fs-peso-label">in PESO</span>
                             </div>
                             <div class="fs-panel-controls">
                                 <div class="bs-edit-dropdown" id="bsEditDropdown">
@@ -86,7 +87,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-zoom-outer">
+                        <div class="fs-zoom-outer" id="bsZoomOuter">
                             <div class="fs-table-scroll" id="bsTableScroll">
                                 <table class="fs-table" id="bsTable">
                                     <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"></colgroup>
@@ -119,6 +120,7 @@
                             <div class="fs-panel-header-left">
                                 <span class="fs-panel-title">FINANCIAL ACTIVITY</span>
                                 <span class="fs-panel-period" id="isPeriodLabel">JANUARY 2026</span>
+                                <span class="fs-peso-label">in PESO</span>
                             </div>
                             <div class="fs-panel-controls">
                                 <button class="crud-add-btn" onclick="openIsCrud()">&#9998; EDIT / ADD</button>
@@ -135,7 +137,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-zoom-outer">
+                        <div class="fs-zoom-outer" id="isZoomOuter">
                             <div class="fs-table-scroll" id="isTableScroll">
                                 <table class="fs-table fs-is-table" id="isTable">
                                     <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"><col class="col-amt"></colgroup>
@@ -174,6 +176,7 @@
                             <div class="fs-panel-header-left">
                                 <span class="fs-panel-title">STATEMENT OF CASH FLOWS</span>
                                 <span class="fs-panel-period" id="cfPeriodLabel">JANUARY 2026</span>
+                                <span class="fs-peso-label">in PESO</span>
                             </div>
                             <div class="fs-panel-controls">
                                 <select class="fs-month-select" id="cfMonthSelect" onchange="renderAll(parseInt(this.value))">
@@ -189,7 +192,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-zoom-outer fs-cf-table-wrap">
+                        <div class="fs-zoom-outer fs-cf-table-wrap" id="cfZoomOuter">
                             <div class="fs-table-scroll" id="cfTableScroll">
                                 <table class="fs-table fs-cf-table" id="cfTable">
                                     <thead class="fs-thead-sticky"><tr><th class="fs-th">ACTIVITIES</th><th class="fs-th center">AMOUNT</th></tr></thead>
@@ -205,6 +208,7 @@
                             <div class="fs-panel-header-left">
                                 <span class="fs-panel-title">WORKING CAPITAL &amp; LIQUIDITY</span>
                                 <span class="fs-panel-period" id="flPeriodLabel">JANUARY 2026</span>
+                                <span class="fs-peso-label">in PESO</span>
                             </div>
                             <div class="fs-panel-controls">
                                 <button class="crud-add-btn" onclick="openFiCrud()">&#9998; EDIT / ADD</button>
@@ -222,7 +226,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="fs-zoom-outer">
+                        <div class="fs-zoom-outer" id="flZoomOuter">
                             <div class="fs-table-scroll" id="flTableScroll">
                                 <table class="fs-table" id="flTable">
                                     <colgroup><col class="col-desc"><col class="col-amt"><col class="col-amt"></colgroup>

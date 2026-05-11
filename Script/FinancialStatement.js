@@ -1213,7 +1213,13 @@ function applyZoom(panelKey, pct) {
         fl: 'flZoomLabel'
     };
     const outer = document.getElementById(map[panelKey]).parentElement;
-    outer.style.transform = 'scale(' + pct / 100 + ')';
+    const scale = pct / 100;
+    outer.style.transform = 'scale(' + scale + ')';
+    outer.style.transformOrigin = 'top left';
+    // Compensate layout height so zoomed table doesn't overlap KPI cards
+    const naturalH = outer.scrollHeight;
+    outer.style.marginBottom = scale > 1 ? (naturalH * (scale - 1)) + 'px' : '0';
+    outer.style.width = scale < 1 ? (100 / scale) + '%' : '';
     document.getElementById(labelMap[panelKey]).textContent = pct + '%';
 }
 

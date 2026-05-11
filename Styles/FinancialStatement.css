@@ -76,6 +76,7 @@
 /* ── Panels ──────────────────────────────────────────────────────────────── */
 .fs-panels {
     min-width: 0;
+    overflow: hidden;
 }
 
 .fs-panel {
@@ -254,6 +255,22 @@
     line-height: 1.2;
 }
 
+/* "in PESO" label above table */
+.fs-peso-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.14em;
+    color: rgba(232, 197, 71, 0.65);
+    text-align: right;
+    padding: 0 4px 6px;
+    text-transform: uppercase;
+}
+
+body.light-mode .fs-peso-label {
+    color: #92400e;
+}
+
 /* Zoom outer — column headers live inside scroll (sticky); full border on wrapper */
 .fs-zoom-outer {
     transform-origin: top left;
@@ -261,6 +278,7 @@
     border: 1px solid rgba(232, 197, 71, 0.28);
     border-radius: 10px;
     background: rgba(8, 18, 32, 0.5);
+    overflow: visible;
 }
 
 .fs-zoom-outer .fs-table thead.fs-thead-year tr th:first-child {
@@ -643,6 +661,7 @@
     padding: 16px 18px;
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    text-align: center;
 }
 
 .kpi-card.kpi-blue {
@@ -676,6 +695,8 @@
     letter-spacing: 0.12em;
     color: rgba(255, 255, 255, 0.55);
     margin-bottom: 8px;
+    text-align: center;
+    line-height: 1.4;
 }
 
 .kpi-value {
@@ -684,6 +705,7 @@
     font-weight: 900;
     color: #fff;
     letter-spacing: 0.02em;
+    text-align: center;
 }
 
 .kpi-card.kpi-gold .kpi-value {
@@ -694,6 +716,7 @@
     margin-top: 8px;
     font-size: 0.72rem;
     color: rgba(255, 255, 255, 0.38);
+    text-align: center;
 }
 
 .kpi-card.kpi-tall {
@@ -701,6 +724,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
 }
 
 .kpi-card.kpi-tall .kpi-value {
