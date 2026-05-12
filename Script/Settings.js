@@ -160,12 +160,6 @@ function confirmLogout() {
     openLogoutModal();
 }
 
-// ── Clear sessions ────────────────────────────────────────────────────────────
-
-function clearSessions() {
-    if (confirm('This will log you out immediately. Continue?')) logout();
-}
-
 // ── Eye toggle ────────────────────────────────────────────────────────────────
 
 function togglePw(id, btn) {

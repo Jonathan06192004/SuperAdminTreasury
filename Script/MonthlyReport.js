@@ -54,8 +54,7 @@ async function loadReport() {
     const month = parseInt(document.getElementById('mrMonth').value);
     const label = `${MONTH_NAMES[month].toUpperCase()} ${year}`;
 
-    document.getElementById('mrPeriodBadge').textContent  = label;
-    document.getElementById('mrSummaryPeriod').textContent = label;
+    document.getElementById('mrPeriodBadge').textContent = label;
 
     const res = await fetch(
         `${SUPABASE_URL}/rest/v1/monthly_report?year=eq.${year}&month=eq.${month}&order=sort_order.asc`,
@@ -65,7 +64,6 @@ async function loadReport() {
 
     renderInstList();
     renderTable(rows);
-    renderSummary(rows);
 }
 
 function renderInstList() {} // no-op, institution column is now inside the table
@@ -102,43 +100,7 @@ function renderTable(rows) {
     });
 }
 
-function renderSummary(rows) {
-    const allInsts = GROUPS.flatMap(g => g.institutions);
-    const total = allInsts.length;
-    const submitted = allInsts.filter(inst =>
-        rows.find(r => r.institution_key === inst.key || r.institution_name?.toUpperCase() === inst.name)
-    ).length;
-    const outstanding = rows.filter(r => r.outstanding && parseFloat(r.outstanding) > 0).length;
-    const pending = total - submitted;
-
-    document.getElementById('statTotal').textContent       = total;
-    document.getElementById('statSubmitted').textContent   = submitted;
-    document.getElementById('statPending').textContent     = pending;
-    document.getElementById('statOutstanding').textContent = outstanding;
-
-    const panel = document.getElementById('mrStatusPanel');
-    panel.innerHTML = '';
-
-    GROUPS.forEach(g => {
-        const lbl = document.createElement('div');
-        lbl.className = 'mr-status-group-label';
-        lbl.textContent = g.label;
-        panel.appendChild(lbl);
-
-        const tags = document.createElement('div');
-        tags.className = 'mr-status-tags';
-        g.institutions.forEach(inst => {
-            const r = rows.find(row => row.institution_key === inst.key || row.institution_name?.toUpperCase() === inst.name);
-            const tag = document.createElement('span');
-            const hasOutstanding = r && r.outstanding && parseFloat(r.outstanding) > 0;
-            const hasSubmitted   = r && !!r.fs_date_received;
-            tag.className = 'mr-status-tag ' + (hasOutstanding ? 'mr-tag-outstanding' : hasSubmitted ? 'mr-tag-submitted' : 'mr-tag-pending');
-            tag.textContent = inst.key;
-            tags.appendChild(tag);
-        });
-        panel.appendChild(tags);
-    });
-}
+function renderSummary(rows) {}
 
 function fmtDate(val) {
     if (!val) return '<span class="mr-empty-cell">—</span>';
@@ -164,8 +126,9 @@ function tickClock() {
     const time = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
     const weekday = now.toLocaleDateString('en-US', { weekday: 'long' });
     const date = now.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-    document.getElementById('mrClockTime').textContent = time;
-    document.getElementById('mrClockDate').innerHTML = `${weekday}<br>${date}`;
+    document.getElementById('mrClockTime').textContent    = time;
+    document.getElementById('mrClockWeekday').textContent = weekday;
+    document.getElementById('mrClockDate').textContent    = date;
 }
 
 /* ── CRUD Modal ─────────────────────────────────────────────────────────── */

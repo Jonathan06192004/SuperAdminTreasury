@@ -273,12 +273,11 @@ body.light-mode .fs-peso-label {
 
 /* Zoom outer — column headers live inside scroll (sticky); full border on wrapper */
 .fs-zoom-outer {
-    transform-origin: top left;
-    transition: transform 0.15s ease;
     border: 1px solid rgba(232, 197, 71, 0.28);
     border-radius: 10px;
     background: rgba(8, 18, 32, 0.5);
-    overflow: visible;
+    overflow: hidden;
+    position: relative;
 }
 
 .fs-zoom-outer .fs-table thead.fs-thead-year tr th:first-child {
@@ -300,6 +299,7 @@ body.light-mode .fs-peso-label {
     scrollbar-color: rgba(232, 197, 71, 0.45) rgba(0, 0, 0, 0.2);
     scrollbar-width: thin;
     border-radius: 0 0 8px 8px;
+    transform-origin: top left;
 }
 
 .fs-table-scroll::-webkit-scrollbar {

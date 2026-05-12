@@ -1212,14 +1212,18 @@ function applyZoom(panelKey, pct) {
         cf: 'cfZoomLabel',
         fl: 'flZoomLabel'
     };
-    const outer = document.getElementById(map[panelKey]).parentElement;
+    const inner = document.getElementById(map[panelKey]);
     const scale = pct / 100;
-    outer.style.transform = 'scale(' + scale + ')';
-    outer.style.transformOrigin = 'top left';
-    // Compensate layout height so zoomed table doesn't overlap KPI cards
-    const naturalH = outer.scrollHeight;
-    outer.style.marginBottom = scale > 1 ? (naturalH * (scale - 1)) + 'px' : '0';
-    outer.style.width = scale < 1 ? (100 / scale) + '%' : '';
+    if (scale === 1) {
+        inner.style.transform = '';
+        inner.style.width = '';
+        inner.parentElement.style.height = '';
+    } else {
+        inner.style.transformOrigin = 'top left';
+        inner.style.transform = 'scale(' + scale + ')';
+        inner.style.width = (100 / scale) + '%';
+        inner.parentElement.style.height = (inner.scrollHeight * scale) + 'px';
+    }
     document.getElementById(labelMap[panelKey]).textContent = pct + '%';
 }
 
@@ -2890,10 +2894,5 @@ async function fiCrudSave() { await fiSaveAll(); }
 
 tickClock();
 setInterval(tickClock, 1000);
-
-applyZoom('bs', zoom.bs);
-applyZoom('is', zoom.is);
-applyZoom('cf', zoom.cf);
-applyZoom('fl', zoom.fl);
 
 renderAll(currentMonthIndex);

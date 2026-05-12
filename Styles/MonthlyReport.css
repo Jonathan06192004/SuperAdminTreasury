@@ -57,6 +57,12 @@
     font-size: 0.82rem;
     cursor: pointer;
     outline: none;
+    color-scheme: dark;
+}
+
+.mr-select option {
+    background: #0a1e38;
+    color: #eef3ff;
 }
 
 .mr-select:focus { border-color: #40a6ff; }
@@ -233,127 +239,78 @@
 
 /* Summary Column */
 .mr-summary-col {
-    width: 200px;
+    width: 180px;
     flex-shrink: 0;
     border-left: 1px solid rgba(255,255,255,0.08);
     display: flex;
     flex-direction: column;
-    gap: 0;
-    overflow-y: auto;
-    background: rgba(8,20,42,0.5);
+    background: rgba(8,20,42,0.6);
     position: relative;
 }
 
-.mr-summary-card {
-    padding: 14px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-
-.mr-summary-title {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: 0.6rem;
-    letter-spacing: 2px;
-    color: #f97316;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-}
-
-.mr-summary-period {
-    font-size: 0.68rem;
-    font-weight: 700;
-    color: rgba(238,243,255,0.45);
-    letter-spacing: 1px;
-    margin-bottom: 10px;
-}
-
-.mr-summary-stats {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
-}
-
-.mr-stat-box {
-    border-radius: 10px;
-    padding: 10px 6px;
-    text-align: center;
-}
-
-.mr-stat-blue    { background: rgba(64,166,255,0.15); border: 1px solid rgba(64,166,255,0.25); }
-.mr-stat-teal    { background: rgba(40,209,167,0.15); border: 1px solid rgba(40,209,167,0.25); }
-.mr-stat-dark    { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); }
-.mr-stat-orange  { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.25); }
-
-.mr-stat-num {
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 900;
-    font-size: 1.4rem;
-    color: #eef3ff;
-    line-height: 1;
-}
-
-.mr-stat-lbl {
-    font-size: 0.55rem;
-    font-weight: 700;
-    letter-spacing: 0.8px;
-    color: rgba(238,243,255,0.45);
-    text-transform: uppercase;
-    margin-top: 4px;
-    line-height: 1.3;
-}
-
-/* Status Panel */
-.mr-status-group-label {
-    font-size: 0.58rem;
-    font-weight: 800;
-    letter-spacing: 1.5px;
-    color: rgba(238,243,255,0.35);
-    text-transform: uppercase;
-    margin: 8px 0 4px;
-}
-
-.mr-status-tags { display: flex; flex-wrap: wrap; gap: 4px; }
-
-.mr-status-tag {
-    font-size: 0.6rem;
-    font-weight: 700;
-    padding: 3px 7px;
-    border-radius: 999px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
-
-.mr-tag-submitted { background: rgba(40,209,167,0.15); border: 1px solid rgba(40,209,167,0.3); color: #28d1a7; }
-.mr-tag-outstanding { background: rgba(249,115,22,0.15); border: 1px solid rgba(249,115,22,0.3); color: #fb923c; }
-.mr-tag-pending { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: rgba(238,243,255,0.5); }
-
-/* Clock — sticky at bottom of summary column */
+/* Clock Card — full-height centered */
 .mr-clock-card {
-    padding: 14px 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 24px 16px;
+    background: linear-gradient(160deg, rgba(10,30,60,0.95) 0%, rgba(4,12,28,0.98) 100%);
     text-align: center;
-    margin-top: auto;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    position: sticky;
-    bottom: 0;
-    background: rgba(8,20,42,0.95);
-    backdrop-filter: blur(6px);
-    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.mr-clock-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 60% at 50% 30%, rgba(64,166,255,0.08), transparent);
+    pointer-events: none;
+}
+
+.mr-clock-icon {
+    font-size: 1.6rem;
+    line-height: 1;
+    opacity: 0.35;
+    margin-bottom: 4px;
+    filter: drop-shadow(0 0 8px rgba(64,166,255,0.4));
 }
 
 .mr-clock-time {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
-    font-size: 1.35rem;
+    font-size: 1.55rem;
     color: #eef3ff;
-    letter-spacing: 1px;
-    line-height: 1.1;
+    letter-spacing: 2px;
+    line-height: 1;
+    text-shadow: 0 0 20px rgba(64,166,255,0.35);
+}
+
+.mr-clock-divider {
+    width: 40px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(64,166,255,0.5), transparent);
+    margin: 4px 0;
+}
+
+.mr-clock-weekday {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 800;
+    font-size: 0.62rem;
+    letter-spacing: 2.5px;
+    color: #40a6ff;
+    text-transform: uppercase;
 }
 
 .mr-clock-date {
-    font-size: 0.65rem;
-    color: rgba(238,243,255,0.45);
-    margin-top: 3px;
-    line-height: 1.4;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: rgba(238,243,255,0.5);
+    line-height: 1.5;
+    letter-spacing: 0.5px;
 }
 
 /* ── Edit / Add button ─────────────────────────────────────────────────── */
@@ -616,6 +573,12 @@ body.light-mode .mr-select {
     background: #f8fafc;
     border-color: #cbd5e1;
     color: #1e293b;
+    color-scheme: light;
+}
+
+body.light-mode .mr-select option {
+    background: #ffffff;
+    color: #1e293b;
 }
 
 body.light-mode .mr-zoom-btn {
@@ -714,11 +677,14 @@ body.light-mode .mr-tag-pending { background: #f1f5f9; border-color: #cbd5e1; co
 
 /* Clock */
 body.light-mode .mr-clock-card {
-    background: #f1f5f9;
-    border-top-color: #e2e8f0;
+    background: linear-gradient(160deg, #1e3a5f 0%, #0f2040 100%);
+    border-left-color: #e2e8f0;
 }
-body.light-mode .mr-clock-time { color: #0f172a; }
-body.light-mode .mr-clock-date { color: #64748b; }
+body.light-mode .mr-clock-icon { opacity: 0.5; }
+body.light-mode .mr-clock-time { color: #ffffff; text-shadow: 0 0 16px rgba(59,130,246,0.4); }
+body.light-mode .mr-clock-divider { background: linear-gradient(90deg, transparent, rgba(147,197,253,0.6), transparent); }
+body.light-mode .mr-clock-weekday { color: #93c5fd; }
+body.light-mode .mr-clock-date { color: rgba(255,255,255,0.55); }
 
 /* CRUD Modal */
 body.light-mode .mr-crud-overlay { background: rgba(0,0,0,0.4); }
@@ -851,9 +817,8 @@ body.light-mode .sidebar-toggle span { background: #475569; }
     .mr-topbar { flex-direction: column; align-items: flex-start; }
     .mr-topbar-right { flex-wrap: wrap; width: 100%; }
     .mr-body { flex-direction: column; height: auto; }
-    .mr-summary-col { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.08); flex-direction: row; flex-wrap: wrap; overflow: visible; }
-    .mr-summary-card { flex: 1; min-width: 200px; }
-    .mr-clock-card { position: static; width: 100%; margin-top: 0; }
+    .mr-summary-col { width: 100%; border-left: none; border-top: 1px solid rgba(255,255,255,0.08); }
+    .mr-clock-card { min-height: 160px; }
     .mr-table-wrap { min-height: 300px; }
 }
 
