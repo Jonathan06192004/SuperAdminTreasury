@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pending Approvals</title>
+    <link rel="icon" type="image/png" href="../Assets/logo.png" />
+    <link rel="stylesheet" href="../Styles/Approvals.css" />
+</head>
+<body>
+    <div class="apv-shell">
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+        <aside class="apv-sidebar" id="sidebar">
+            <a href="Dashboard.html" class="brand">
+                <img src="../Assets/logo.png" alt="Logo" class="brand-logo" />
+                <div>
+                    <h2>SuperAdmin</h2>
+                    <span>Treasury</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Users.html">Users</a>
+                <a href="FinancialStatement.html">Financial Statement</a>
+                <a href="MonthlyReport.html">Monthly Report</a>
+                <a href="Update.html">Update</a>
+                <a href="Approvals.html" class="active">Approvals <span class="nav-pending-badge" id="navPendingBadge" style="display:none"></span></a>
+            </nav>
+            <nav class="sidebar-nav sidebar-nav-bottom">
+                <a href="Settings.html"><span class="nav-icon">&#9881;</span> Settings</a>
+            </nav>
+        </aside>
+
+        <main class="apv-main">
+            <header class="apv-header">
+                <div>
+                    <div class="header-badge">&#128274; SuperAdmin Portal</div>
+                    <h1>Pending Approvals</h1>
+                    <p>Review and confirm financial data submitted by mission admins before it appears to viewers.</p>
+                </div>
+                <div class="apv-header-right">
+                    <div class="apv-tab-group">
+                        <button type="button" class="apv-tab active" id="tab-tithes" onclick="switchTab('tithes')">Tithes</button>
+                        <button type="button" class="apv-tab" id="tab-offerings" onclick="switchTab('offerings')">Offerings</button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Stats row -->
+            <section class="apv-stats">
+                <article class="apv-stat apv-stat-pending">
+                    <div class="apv-stat-num" id="statPending">—</div>
+                    <div class="apv-stat-label">Pending</div>
+                </article>
+                <article class="apv-stat apv-stat-confirmed">
+                    <div class="apv-stat-num" id="statConfirmed">—</div>
+                    <div class="apv-stat-label">Confirmed Today</div>
+                </article>
+                <article class="apv-stat apv-stat-rejected">
+                    <div class="apv-stat-num" id="statRejected">—</div>
+                    <div class="apv-stat-label">Rejected</div>
+                </article>
+            </section>
+
+            <!-- Bulk actions -->
+            <section class="apv-bulk" id="bulkBar" style="display:none">
+                <span id="bulkCount">0 selected</span>
+                <button type="button" class="apv-btn-confirm-all" onclick="bulkConfirm()">&#10003; Confirm Selected</button>
+                <button type="button" class="apv-btn-reject-all" onclick="bulkReject()">&#10005; Reject Selected</button>
+            </section>
+
+            <!-- Table card -->
+            <section class="apv-card">
+                <div class="apv-card-header">
+                    <h2 id="tableTitle">Pending Tithes</h2>
+                    <div class="apv-card-actions">
+                        <select class="apv-filter-sel" id="filterMission" onchange="applyFilters()">
+                            <option value="">All Missions</option>
+                        </select>
+                        <select class="apv-filter-sel" id="filterYear" onchange="applyFilters()">
+                            <option value="">All Years</option>
+                        </select>
+                        <select class="apv-filter-sel" id="filterMonth" onchange="applyFilters()">
+                            <option value="">All Months</option>
+                            <option value="1">January</option><option value="2">February</option>
+                            <option value="3">March</option><option value="4">April</option>
+                            <option value="5">May</option><option value="6">June</option>
+                            <option value="7">July</option><option value="8">August</option>
+                            <option value="9">September</option><option value="10">October</option>
+                            <option value="11">November</option><option value="12">December</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="apvTableWrap">
+                    <p class="apv-loading">Loading…</p>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="../Script/auth.js"></script>
+    <script src="../Script/Approvals.js"></script>
+    <script>
+        function toggleSidebar() {
+            const s = document.getElementById('sidebar');
+            const b = document.getElementById('sidebarBackdrop');
+            const t = document.getElementById('sidebarToggle');
+            s.classList.toggle('open');
+            b.classList.toggle('visible');
+            t.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

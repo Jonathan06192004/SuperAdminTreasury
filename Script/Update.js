@@ -459,7 +459,7 @@ async function saveModal() {
         } else {
             await supabase(currentCategory, {
                 method: 'POST',
-                body: JSON.stringify({ church_id: churchId, year, month, amount, budget })
+                body: JSON.stringify({ church_id: churchId, year, month, amount, budget, status: 'confirmed' })
             });
         }
         closeModal();

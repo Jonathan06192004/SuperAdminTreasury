@@ -18,11 +18,6 @@ async function fetchUsers() {
     return res.json();
 }
 
-function formatDate(iso) {
-    const d = new Date(iso);
-    return MONTHS[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
-}
-
 function timeAgo(iso) {
     const diff = Math.floor((Date.now() - new Date(iso)) / 1000);
     if (diff < 60) return 'just now';

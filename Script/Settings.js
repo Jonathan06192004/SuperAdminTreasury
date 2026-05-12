@@ -59,7 +59,7 @@ async function updateProfile() {
             body: JSON.stringify({ full_name: fullName, username: username })
         });
         const updated = { ...user, full_name: fullName, username: username };
-        sessionStorage.setItem('superadmin_session', JSON.stringify(updated));
+        sessionStorage.setItem('sa_user', JSON.stringify(updated));
         loadProfile();
         okEl.textContent = '✓ Profile updated successfully.';
     } catch (e) {

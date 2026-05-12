@@ -66,8 +66,6 @@ async function loadReport() {
     renderTable(rows);
 }
 
-function renderInstList() {} // no-op, institution column is now inside the table
-
 function renderTable(rows) {
     const tbody = document.getElementById('mrTableBody');
     tbody.innerHTML = '';
@@ -100,7 +98,6 @@ function renderTable(rows) {
     });
 }
 
-function renderSummary(rows) {}
 
 function fmtDate(val) {
     if (!val) return '<span class="mr-empty-cell">—</span>';

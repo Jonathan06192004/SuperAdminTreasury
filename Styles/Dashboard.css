@@ -72,8 +72,15 @@ html, body {
     font-weight: 500;
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     transition: background 0.2s, color 0.2s, padding-left 0.2s;
+}
+
+.nav-pending-badge {
+    margin-left: auto;
+    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+    background: #f59e0b; color: #04141c; font-size: 0.68rem; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
 }
 
 .nav-icon { font-size: 1rem; width: 20px; text-align: center; flex-shrink: 0; }
@@ -498,6 +505,39 @@ html, body {
 
 .error-note { color: #ff8080; font-size: 0.88rem; padding: 20px 0; text-align: center; }
 .no-val { color: rgba(238,243,255,0.2); }
+
+/* ── Pending alert ───────────────────────────────────────────────────────── */
+.pending-alert {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 20px;
+    border-radius: 14px;
+    background: rgba(245,158,11,0.08);
+    border: 1px solid rgba(245,158,11,0.25);
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.pending-alert-icon { font-size: 1.1rem; color: #f59e0b; flex-shrink: 0; }
+.pending-alert span:not(.pending-alert-icon) { font-size: 0.88rem; color: rgba(238,243,255,0.8); flex: 1; }
+.pending-alert-link {
+    padding: 6px 16px; border-radius: 8px; font-size: 0.82rem; font-weight: 700;
+    background: linear-gradient(135deg,#f59e0b,#d97706); color: #04141c;
+    text-decoration: none; white-space: nowrap; transition: all 0.2s;
+    box-shadow: 0 3px 10px rgba(245,158,11,0.3);
+}
+.pending-alert-link:hover { transform: translateY(-1px); box-shadow: 0 5px 16px rgba(245,158,11,0.4); }
+
+.nav-pending-badge {
+    margin-left: auto;
+    min-width: 20px; height: 20px; padding: 0 6px; border-radius: 999px;
+    background: #f59e0b; color: #04141c; font-size: 0.68rem; font-weight: 800;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+
+body.light-mode .pending-alert { background: #fffbeb; border-color: #fde68a; }
+body.light-mode .pending-alert span:not(.pending-alert-icon) { color: #92400e; }
+body.light-mode .pending-alert-icon { color: #d97706; }
 
 /* ══════════════════════════════════════════════════════════════════════════
    LIGHT MODE
