@@ -28,6 +28,7 @@
                 <a href="MonthlyReport.html">Monthly Report</a>
                 <a href="Update.html">Update</a>
                 <a href="Approvals.html">Approvals <span class="nav-pending-badge" id="navPendingBadge" style="display:none"></span></a>
+                <a href="UnionData.html">Union Data</a>
             </nav>
             <nav class="sidebar-nav sidebar-nav-bottom">
                 <a href="Settings.html"><span class="nav-icon">&#9881;</span> Settings</a>
@@ -107,7 +108,7 @@
                         <label id="password-label">Password</label>
                         <div class="pw-wrapper">
                             <input type="password" id="f-password" placeholder="Enter password" />
-                            <button type="button" class="eye-btn" onclick="toggleEye('f-password', this)" tabindex="-1">&#128065;</button>
+                    <button type="button" class="eye-btn" onclick="toggleEye('f-password', this)" tabindex="-1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                     </div>
 
@@ -151,7 +152,7 @@
                         <label id="viewer-password-label">Password</label>
                         <div class="pw-wrapper">
                             <input type="password" id="vf-password" placeholder="Enter password" />
-                            <button type="button" class="eye-btn" onclick="toggleEye('vf-password', this)" tabindex="-1">&#128065;</button>
+                        <button type="button" class="eye-btn" onclick="toggleEye('vf-password', this)" tabindex="-1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                     </div>
                 </div>
@@ -179,14 +180,14 @@
                         <label>New Password</label>
                         <div class="pw-wrapper">
                             <input type="password" id="r-password" placeholder="Enter new password" />
-                            <button type="button" class="eye-btn" onclick="toggleEye('r-password', this)" tabindex="-1">&#128065;</button>
+                            <button type="button" class="eye-btn" onclick="toggleEye('r-password', this)" tabindex="-1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                     </div>
                     <div class="field-group">
                         <label>Confirm Password</label>
                         <div class="pw-wrapper">
                             <input type="password" id="r-confirm" placeholder="Confirm new password" />
-                            <button type="button" class="eye-btn" onclick="toggleEye('r-confirm', this)" tabindex="-1">&#128065;</button>
+                            <button type="button" class="eye-btn" onclick="toggleEye('r-confirm', this)" tabindex="-1"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
                         </div>
                     </div>
                 </div>
@@ -200,6 +201,52 @@
         </div>
     </div>
 
+    <!-- 2FA Management Modal -->
+    <div class="modal-overlay" id="twofa-modal" style="display:none">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="twofa-modal-title">Enable 2FA</h3>
+                <button type="button" class="modal-close" onclick="closeTwoFaModal()">&#x2715;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Enable panel -->
+                <div id="twofa-setup-panel">
+                    <p style="font-size:0.85rem;color:rgba(238,243,255,0.6);margin-bottom:14px;">Setting up 2FA for: <strong id="twofa-viewer-name"></strong></p>
+                    <p style="font-size:0.82rem;color:rgba(238,243,255,0.5);margin-bottom:12px;">Have the viewer scan this QR code with their authenticator app, then enter the 6-digit code to confirm.</p>
+                    <div style="display:flex;justify-content:center;margin-bottom:16px;">
+                        <div style="background:#fff;border-radius:12px;padding:12px;display:inline-block;box-shadow:0 4px 20px rgba(0,0,0,0.3);">
+                            <img id="twofa-qr-img" src="" alt="QR Code" width="180" height="180" style="display:block;"/>
+                        </div>
+                    </div>
+                    <div class="modal-fields" style="grid-template-columns:1fr;">
+                        <div class="field-group">
+                            <label>MANUAL KEY</label>
+                            <input type="text" class="" id="twofa-manual-key" readonly style="font-family:monospace;font-size:0.8rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 14px;color:#eef3ff;letter-spacing:0.05em;"/>
+                        </div>
+                        <div class="field-group">
+                            <label>6-DIGIT CODE TO CONFIRM</label>
+                            <input type="text" id="twofa-code-input" inputmode="numeric" maxlength="6" placeholder="000000"
+                                style="letter-spacing:8px;font-size:1.2rem;text-align:center;font-family:monospace;"
+                                oninput="this.value=this.value.replace(/\D/g,'')"/>
+                        </div>
+                    </div>
+                    <p class="modal-error" id="twofa-error"></p>
+                </div>
+                <!-- Disable panel -->
+                <div id="twofa-disable-panel" style="display:none;">
+                    <p style="font-size:0.88rem;color:rgba(238,243,255,0.7);margin-bottom:8px;">Disable 2FA for: <strong id="twofa-disable-name"></strong></p>
+                    <p style="font-size:0.82rem;color:rgba(238,243,255,0.5);">This will remove two-factor authentication. The viewer will only need their password to log in.</p>
+                </div>
+                <div class="modal-divider"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="modal-cancel" onclick="closeTwoFaModal()">Cancel</button>
+                <button type="button" class="modal-save" id="twofa-confirm-btn" onclick="document.getElementById('twofa-setup-panel').style.display!=='none'?confirmEnable2fa():confirmDisable2fa()">&#10003; Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/otpauth@9.3.6/dist/otpauth.umd.min.js"></script>
     <script src="../Script/auth.js"></script>
     <script src="../Script/Users.js"></script>
     <script src="../Script/pendingBadge.js"></script>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Union Data</title>
+    <link rel="icon" type="image/png" href="../Assets/logo.png" />
+    <link rel="stylesheet" href="../Styles/UnionData.css" />
+</head>
+<body>
+    <div class="ud-shell">
+        <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleSidebar()" aria-label="Toggle menu">
+            <span></span><span></span><span></span>
+        </button>
+        <div class="sidebar-backdrop" id="sidebarBackdrop" onclick="toggleSidebar()"></div>
+        <aside class="ud-sidebar" id="sidebar">
+            <a href="Dashboard.html" class="brand">
+                <img src="../Assets/logo.png" alt="Logo" class="brand-logo" />
+                <div>
+                    <h2>SuperAdmin</h2>
+                    <span>Treasury</span>
+                </div>
+            </a>
+            <nav class="sidebar-nav">
+                <a href="Dashboard.html">Dashboard</a>
+                <a href="Users.html">Users</a>
+                <a href="FinancialStatement.html">Financial Statement</a>
+                <a href="MonthlyReport.html">Monthly Report</a>
+                <a href="Update.html">Update</a>
+                <a href="Approvals.html">Approvals <span class="nav-pending-badge" id="navPendingBadge" style="display:none"></span></a>
+                <a href="UnionData.html" class="active">Union Data</a>
+            </nav>
+            <nav class="sidebar-nav sidebar-nav-bottom">
+                <a href="Settings.html"><span class="nav-icon">&#9881;</span> Settings</a>
+            </nav>
+        </aside>
+
+        <main class="ud-main">
+            <header class="ud-header">
+                <div>
+                    <div class="header-badge">&#128274; SuperAdmin Portal</div>
+                    <h1>Union Data</h1>
+                    <p>Input tithes and offerings totals per mission directly into the union database.</p>
+                </div>
+                <div class="ud-tab-group">
+                    <button type="button" class="ud-tab active" id="tab-tithes" onclick="switchTab('tithes')">&#128181; Tithes</button>
+                    <button type="button" class="ud-tab" id="tab-offerings" onclick="switchTab('offerings')">&#128176; Offerings</button>
+                </div>
+            </header>
+
+            <!-- Mission buttons -->
+            <section class="ud-mission-row" id="missionRow">
+                <p class="ud-loading">Loading missions…</p>
+            </section>
+
+            <!-- Summary table -->
+            <section class="ud-card ud-summary-card">
+                <div class="ud-card-header">
+                    <div>
+                        <h2 id="summaryTitle">Tithes — All Missions</h2>
+                        <p>Total amount and budget per mission</p>
+                    </div>
+                    <div class="ud-card-actions">
+                        <select class="ud-filter-sel" id="summaryYear" onchange="loadSummary()">
+                            <option value="">All Years</option>
+                        </select>
+                        <select class="ud-filter-sel" id="summaryMonth" onchange="loadSummary()">
+                            <option value="">All Months</option>
+                            <option value="1">January</option><option value="2">February</option>
+                            <option value="3">March</option><option value="4">April</option>
+                            <option value="5">May</option><option value="6">June</option>
+                            <option value="7">July</option><option value="8">August</option>
+                            <option value="9">September</option><option value="10">October</option>
+                            <option value="11">November</option><option value="12">December</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="summaryArea"><p class="ud-loading">Loading…</p></div>
+            </section>
+
+            <!-- Per-mission data table -->
+            <section class="ud-card">
+                <div class="ud-card-header">
+                    <div>
+                        <h2 id="tableTitle">—</h2>
+                        <p id="tableSubtitle">Select a mission above.</p>
+                    </div>
+                    <div class="ud-card-actions">
+                        <select class="ud-filter-sel" id="filterYear" onchange="applyFilter()">
+                            <option value="">All Years</option>
+                        </select>
+                        <select class="ud-filter-sel" id="filterMonth" onchange="applyFilter()">
+                            <option value="">All Months</option>
+                            <option value="1">January</option><option value="2">February</option>
+                            <option value="3">March</option><option value="4">April</option>
+                            <option value="5">May</option><option value="6">June</option>
+                            <option value="7">July</option><option value="8">August</option>
+                            <option value="9">September</option><option value="10">October</option>
+                            <option value="11">November</option><option value="12">December</option>
+                        </select>
+                        <button type="button" class="ud-add-btn" id="addBtn" onclick="openAddModal()" style="display:none">+ Add Entry</button>
+                    </div>
+                </div>
+                <div id="tableArea"><p class="ud-placeholder">Select a mission to load data.</p></div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Add / Edit Modal -->
+    <div class="ud-modal-overlay" id="modal" style="display:none">
+        <div class="ud-modal">
+            <div class="ud-modal-header">
+                <h3 id="modalTitle">Add Entry</h3>
+                <button type="button" class="ud-modal-close" onclick="closeModal()">&#x2715;</button>
+            </div>
+            <div class="ud-modal-body">
+                <div class="ud-modal-fields">
+                    <div class="ud-field-group">
+                        <label>Mission</label>
+                        <input type="text" id="f-mission" readonly />
+                    </div>
+                    <div class="ud-field-group">
+                        <label>Year</label>
+                        <input type="number" id="f-year" min="2000" max="2100" placeholder="e.g. 2026" />
+                    </div>
+                    <div class="ud-field-group">
+                        <label>Month</label>
+                        <select id="f-month">
+                            <option value="1">January</option><option value="2">February</option>
+                            <option value="3">March</option><option value="4">April</option>
+                            <option value="5">May</option><option value="6">June</option>
+                            <option value="7">July</option><option value="8">August</option>
+                            <option value="9">September</option><option value="10">October</option>
+                            <option value="11">November</option><option value="12">December</option>
+                        </select>
+                    </div>
+                    <div class="ud-field-group">
+                        <label>Amount</label>
+                        <input type="number" id="f-amount" step="0.01" placeholder="0.00" />
+                    </div>
+                    <div class="ud-field-group">
+                        <label>Budget</label>
+                        <input type="number" id="f-budget" step="0.01" placeholder="0.00" />
+                    </div>
+                    <div class="ud-field-group">
+                        <label>Status</label>
+                        <select id="f-status">
+                            <option value="confirmed">Confirmed</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+                <p class="ud-modal-error" id="modalError"></p>
+            </div>
+            <div class="ud-modal-footer">
+                <button type="button" class="ud-modal-cancel" onclick="closeModal()">Cancel</button>
+                <button type="button" class="ud-modal-save" id="modalSaveBtn" onclick="saveModal()">&#10003; Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../Script/auth.js"></script>
+    <script src="../Script/UnionData.js"></script>
+    <script src="../Script/pendingBadge.js"></script>
+    <script>
+        function toggleSidebar() {
+            const s = document.getElementById('sidebar');
+            const b = document.getElementById('sidebarBackdrop');
+            const t = document.getElementById('sidebarToggle');
+            s.classList.toggle('open');
+            b.classList.toggle('visible');
+            t.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

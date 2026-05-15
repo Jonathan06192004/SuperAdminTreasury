@@ -58,20 +58,23 @@ async function sbTreasury(path, options = {}) {
     return res.json();
 }
 
+const EYE_OPEN = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+const EYE_OFF  = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+
 function toggleTablePw(spanId) {
     const span = document.getElementById(spanId);
     const btn = span.nextElementSibling;
     const plain = span.dataset.pw;
     const isHidden = span.textContent.includes('•');
     span.textContent = isHidden ? plain : '•'.repeat(Math.min(plain.length, 10));
-    btn.textContent = isHidden ? '🙈' : '👁️';
+    btn.innerHTML = isHidden ? EYE_OFF : EYE_OPEN;
 }
 
 function toggleEye(inputId, btn) {
     const input = document.getElementById(inputId);
     const isHidden = input.type === 'password';
     input.type = isHidden ? 'text' : 'password';
-    btn.textContent = isHidden ? '🙈' : '👁';
+    btn.innerHTML = isHidden ? EYE_OFF : EYE_OPEN;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -113,7 +116,7 @@ async function loadViewers() {
     area.innerHTML = '<p class="placeholder-note">Loading…</p>';
     try {
         allViewers = await sbUsers(
-            'union_users?select=id,username,full_name,email,phone,is_active,created_at&order=created_at.asc'
+            'union_users?select=id,username,full_name,email,phone,is_active,two_fa_enabled,totp_secret,password_hash,created_at&order=created_at.asc'
         );
         renderViewerTable();
     } catch (e) {
@@ -186,7 +189,7 @@ function renderTable() {
             <td class="pw-cell">
                 <div class="pw-display">
                     <span class="pw-text" id="${pwId}" data-pw="${u.plain_password ?? ''}">${u.plain_password ? '•'.repeat(Math.min(u.plain_password.length, 10)) : '—'}</span>
-                    <button type="button" class="eye-btn-sm" onclick="toggleTablePw('${pwId}')" ${!u.plain_password ? 'disabled' : ''}>&#128065;</button>
+                    <button type="button" class="eye-btn-sm" onclick="toggleTablePw('${pwId}')" ${!u.plain_password ? 'disabled' : ''}>${EYE_OPEN}</button>
                 </div>
             </td>
             <td><span class="role-badge ${u.role}">${isSuperAdmin ? 'Super Admin' : 'Admin'}</span></td>
@@ -196,7 +199,7 @@ function renderTable() {
                 ${isSuperAdmin
                     ? '<span class="protected-label">Protected</span>'
                     : `<button class="btn-edit" onclick="openEditModal('${u.id}')">Edit</button>
-                       <button class="btn-reset" onclick="openResetModal('${u.id}')">Reset PW</button>
+                <button class="btn-reset" onclick="openResetModal('${u.id}')">Reset PW</button>
                        <button class="btn-toggle ${u.is_active ? 'deactivate' : 'activate'}" onclick="toggleActive('${u.id}', ${u.is_active})">
                            ${u.is_active ? 'Deactivate' : 'Activate'}
                        </button>
@@ -233,20 +236,31 @@ function renderViewerTable() {
     table.className = 'users-table';
     table.innerHTML = `
         <thead><tr>
-            <th>Full Name</th><th>Username</th><th>Email</th><th>Phone</th><th>Status</th><th>Actions</th>
+            <th>Full Name</th><th>Username</th><th>Password</th><th>Email</th><th>Phone</th><th>Status</th><th>2FA</th><th>Actions</th>
         </tr></thead>
     `;
     const tbody = document.createElement('tbody');
     filtered.forEach(v => {
+        const pwId = 'vpw-' + v.id;
+        const pwVal = v.password_hash ?? '';
         const tr = document.createElement('tr');
         tr.innerHTML = `
             <td class="name-cell">${v.full_name ?? '—'}</td>
             <td class="username-cell">${v.username}</td>
+            <td class="pw-cell">
+                <div class="pw-display">
+                    <span class="pw-text" id="${pwId}" data-pw="${pwVal}">${pwVal ? '•'.repeat(Math.min(pwVal.length, 10)) : '—'}</span>
+                    <button type="button" class="eye-btn-sm" onclick="toggleTablePw('${pwId}')" ${!pwVal ? 'disabled' : ''}>${EYE_OPEN}</button>
+                </div>
+            </td>
             <td>${v.email ?? '<span class="no-mission">—</span>'}</td>
             <td>${v.phone ?? '<span class="no-mission">—</span>'}</td>
             <td><span class="status-badge ${v.is_active ? 'active' : 'inactive'}">${v.is_active ? 'Active' : 'Inactive'}</span></td>
+            <td><span class="status-badge ${v.two_fa_enabled ? 'active' : 'inactive'}">${v.two_fa_enabled ? 'ON' : 'OFF'}</span></td>
             <td class="action-cell">
                 <button class="btn-edit" onclick="openEditViewerModal('${v.id}')">Edit</button>
+                <button class="btn-reset" onclick="openViewerResetModal('${v.id}')">Reset PW</button>
+                <button class="btn-2fa ${v.two_fa_enabled ? 'disable' : 'enable'}" onclick="manage2fa('${v.id}', ${!!v.two_fa_enabled})">${v.two_fa_enabled ? 'Disable 2FA' : 'Enable 2FA'}</button>
                 <button class="btn-toggle ${v.is_active ? 'deactivate' : 'activate'}" onclick="toggleViewerActive('${v.id}', ${v.is_active})">${v.is_active ? 'Deactivate' : 'Activate'}</button>
                 <button class="btn-delete" onclick="deleteViewer('${v.id}')">Delete</button>
             </td>
@@ -412,6 +426,136 @@ async function saveViewerModal() {
         saveBtn.disabled = false;
         saveBtn.innerHTML = '&#10003; Save';
     }
+}
+
+// ── Viewer Reset Password Modal ──────────────────────────────────────────────
+
+let resetViewerTargetId = null;
+
+function openViewerResetModal(id) {
+    const v = allViewers.find(v => v.id === id);
+    if (!v) return;
+    resetViewerTargetId = id;
+    document.getElementById('reset-modal-title').textContent = 'Reset Viewer Password';
+    document.getElementById('reset-info').textContent = 'Resetting password for: ' + (v.full_name ?? v.username);
+    document.getElementById('r-password').value = '';
+    document.getElementById('r-confirm').value = '';
+    document.getElementById('reset-error').textContent = '';
+    document.getElementById('reset-modal').style.display = 'flex';
+    document.getElementById('reset-save-btn').onclick = saveViewerResetPassword;
+}
+
+async function saveViewerResetPassword() {
+    const newPw = document.getElementById('r-password').value;
+    const confirmPw = document.getElementById('r-confirm').value;
+    const errEl = document.getElementById('reset-error');
+    const saveBtn = document.getElementById('reset-save-btn');
+
+    if (!newPw) { errEl.textContent = 'New password is required.'; return; }
+    if (newPw.length < 6) { errEl.textContent = 'Password must be at least 6 characters.'; return; }
+    if (newPw !== confirmPw) { errEl.textContent = 'Passwords do not match.'; return; }
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = 'Saving…';
+    errEl.textContent = '';
+
+    try {
+        await sbUsers('union_users?id=eq.' + encodeURIComponent(resetViewerTargetId), {
+            method: 'PATCH',
+            headers: { ...usersHeaders, 'Prefer': 'return=representation' },
+            body: JSON.stringify({ password_hash: newPw })
+        });
+        closeResetModal();
+        loadViewers();
+    } catch (e) {
+        errEl.textContent = 'Reset failed: ' + e.message;
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '&#10003; Reset';
+    }
+}
+
+// ── Viewer 2FA Management ─────────────────────────────────────────────────────
+
+let twoFaTargetId = null;
+let twoFaTargetViewer = null;
+let pendingTotpSecret = null;
+
+function manage2fa(id, isEnabled) {
+    const v = allViewers.find(v => v.id === id);
+    if (!v) return;
+    twoFaTargetId = id;
+    twoFaTargetViewer = v;
+
+    if (isEnabled) {
+        document.getElementById('twofa-modal-title').textContent = 'Disable 2FA';
+        document.getElementById('twofa-setup-panel').style.display = 'none';
+        document.getElementById('twofa-disable-panel').style.display = 'block';
+        document.getElementById('twofa-disable-name').textContent = v.full_name ?? v.username;
+    } else {
+        document.getElementById('twofa-modal-title').textContent = 'Enable 2FA';
+        document.getElementById('twofa-disable-panel').style.display = 'none';
+        document.getElementById('twofa-setup-panel').style.display = 'block';
+        document.getElementById('twofa-error').textContent = '';
+        document.getElementById('twofa-code-input').value = '';
+        const secret = generateBase32Secret();
+        pendingTotpSecret = secret;
+        const label = encodeURIComponent('SPUC Treasury:' + (v.username || 'user'));
+        const issuer = encodeURIComponent('SPUC Treasury');
+        const uri = 'otpauth://totp/' + label + '?secret=' + secret + '&issuer=' + issuer + '&algorithm=SHA1&digits=6&period=30';
+        document.getElementById('twofa-qr-img').src = 'https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' + encodeURIComponent(uri);
+        document.getElementById('twofa-manual-key').value = secret;
+        document.getElementById('twofa-viewer-name').textContent = v.full_name ?? v.username;
+    }
+    document.getElementById('twofa-modal').style.display = 'flex';
+}
+
+function closeTwoFaModal() {
+    document.getElementById('twofa-modal').style.display = 'none';
+    twoFaTargetId = null;
+    twoFaTargetViewer = null;
+    pendingTotpSecret = null;
+}
+
+async function confirmEnable2fa() {
+    const code = document.getElementById('twofa-code-input').value.trim();
+    const errEl = document.getElementById('twofa-error');
+    if (code.length !== 6) { errEl.textContent = 'Enter a 6-digit code.'; return; }
+
+    // Validate TOTP using otpauth library
+    const totp = new OTPAuth.TOTP({ secret: OTPAuth.Secret.fromBase32(pendingTotpSecret), algorithm: 'SHA1', digits: 6, period: 30 });
+    if (totp.validate({ token: code, window: 1 }) === null) { errEl.textContent = 'Invalid code. Try again.'; return; }
+
+    try {
+        await sbUsers('union_users?id=eq.' + encodeURIComponent(twoFaTargetId), {
+            method: 'PATCH',
+            headers: { ...usersHeaders, 'Prefer': 'return=representation' },
+            body: JSON.stringify({ totp_secret: pendingTotpSecret, two_fa_enabled: true })
+        });
+        closeTwoFaModal();
+        loadViewers();
+    } catch (e) { errEl.textContent = 'Failed to save: ' + e.message; }
+}
+
+async function confirmDisable2fa() {
+    try {
+        await sbUsers('union_users?id=eq.' + encodeURIComponent(twoFaTargetId), {
+            method: 'PATCH',
+            headers: { ...usersHeaders, 'Prefer': 'return=representation' },
+            body: JSON.stringify({ totp_secret: null, two_fa_enabled: false })
+        });
+        closeTwoFaModal();
+        loadViewers();
+    } catch (e) { alert('Failed to disable 2FA: ' + e.message); }
+}
+
+function generateBase32Secret() {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
+    let result = '';
+    const arr = new Uint8Array(20);
+    crypto.getRandomValues(arr);
+    arr.forEach(b => result += chars[b % 32]);
+    return result;
 }
 
 async function toggleViewerActive(id, currentState) {
